@@ -31,20 +31,26 @@ func AuthMiddleware() *jwt.GinJWTMiddleware {
 		},
 		IdentityHandler: func(c *gin.Context) interface{} {
 			claims := jwt.ExtractClaims(c)
-			return &User{
-				Username: claims[IdentityKey].(string),
+			mongoCtx, collection := GetMongoContext("users")
+			var user User
+
+			err := collection.FindOne(mongoCtx, bson.M{"username": claims[IdentityKey].(string)}).Decode(&user)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "msg": "用户获取失败."})
+				log.Println(err)
+				return nil
 			}
+			user.Password = ""
+			return &user
 		},
 		Authenticator: func(c *gin.Context) (interface{}, error) {
 			var credentials Credentials
-			if err := c.ShouldBind(&credentials); err != nil {
+			if err := c.BindJSON(&credentials); err != nil {
 				return "", jwt.ErrMissingLoginValues
 			}
-
 			h := sha256.New()
 			h.Write([]byte(credentials.Password))
 			passwordHash := hex.EncodeToString(h.Sum(nil))
-
 			mongoCtx, collection := GetMongoContext("users")
 			var res User
 
@@ -54,19 +60,18 @@ func AuthMiddleware() *jwt.GinJWTMiddleware {
 				log.Println(err)
 				return nil, jwt.ErrFailedAuthentication
 			}
-
 			if res.Password == passwordHash {
-				return res, nil
+				return &res, nil
 			}
 
 			return nil, jwt.ErrFailedAuthentication
 		},
-		Unauthorized: func(c *gin.Context, code int, message string) {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"code": -1,
-				"msg":  "用户名或密码错误！",
-			})
-		},
+		//Unauthorized: func(c *gin.Context, code int, message string) {
+		//	c.JSON(http.StatusUnauthorized, gin.H{
+		//		"code": -1,
+		//		"msg":  "需要登录！",
+		//	})
+		//},
 		// TokenLookup is a string in the form of "<source>:<name>" that is used
 		// to extract token from the request.
 		// Optional. Default value "header:Authorization".

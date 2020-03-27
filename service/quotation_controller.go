@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"net/http"
@@ -87,5 +88,43 @@ func GetQuotations(c *gin.Context) {
 		log.Println(err)
 		return
 	}
+	c.JSON(http.StatusOK, res)
+	return
+}
 
+func UpdateQuotation(c *gin.Context) {
+	var param QuotationParam
+	err := c.BindJSON(&param)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "msg": "内部错误！"})
+		log.Println(err)
+		return
+	}
+	participantCount := param.ParticipantCount
+	verified := param.Verified
+
+	set := bson.M{}
+
+	if participantCount != nil {
+		set["participantCount"] = participantCount
+	}
+
+	if verified != nil {
+		set["verified"] = verified
+	}
+
+	var quotation Quotation
+	mongoCtx, collection := GetMongoContext("quotations")
+	objectId, _ := primitive.ObjectIDFromHex(c.Param("id"))
+	after := options.After
+	opt := options.FindOneAndUpdateOptions{
+		ReturnDocument: &after,
+	}
+	err = collection.FindOneAndUpdate(mongoCtx, bson.M{"_id": objectId}, bson.M{"$set": set}, &opt).Decode(&quotation)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "msg": "更新报价信息失败！"})
+		log.Println(err)
+		return
+	}
+	c.JSON(http.StatusOK, quotation)
 }

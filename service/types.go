@@ -20,6 +20,15 @@ type Quotation struct {
 	LastModified     time.Time `json:"lastModified" bson:"lastModified"`
 }
 
+type QuotationParam struct {
+	ID               string    `json:"id" bson:"_id"`
+	Type             string    `json:"type" bson:"type"`
+	Price            *int      `json:"price" bson:"price"`
+	ParticipantCount *int      `json:"participantCount" bson:"participantCount"`
+	Verified         *bool     `json:"verified" bson:"verified"`
+	LastModified     time.Time `json:"lastModified" bson:"lastModified"`
+}
+
 var QuotationType = map[string]struct{}{
 	"SELL": {},
 	"BUY":  {},
