@@ -1,0 +1,35 @@
+.form-wrapper {
+  background: $bg-clr-light;
+  margin: 5%;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 0 0 27px 27px;
+  padding: 5%;
+  .field {
+    margin-bottom: 18px;
+  }
+  input {
+    border-radius: 11px;
+    background-color: $bg-clr-lighter;
+    font-weight: bold;
+    font-size: 18px;
+    line-height: 25px;
+    color: $txt-clr;
+  }
+  label {
+    color: $txt-clr;
+    font-weight: bold;
+    font-size: 14px;
+    line-height: 20px;
+  }
+  small {
+    display: none;
+  }
+}
+
+.btn-reg {
+  background: $btn-clr-g !important;
+  height: 58px;
+  width: 100%;
+  margin-top: 8px;
+  border-radius: 11px;
+}
