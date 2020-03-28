@@ -1,0 +1,44 @@
+<template>
+    <section>
+        <b-field label="用户名">
+            <b-input v-model="username" ></b-input>
+        </b-field>
+        <b-field label="密码">
+            <b-input v-model="password" type="password" maxlength="30"></b-input>
+        </b-field>
+        <b-button type="is-primary" @click="login">登录</b-button>
+    </section>
+</template>
+
+<script>
+import { sha256 } from 'js-sha256';
+export default {
+  name: 'Login',
+  mounted() {
+
+  },
+  data() {
+    return {
+        username: '',
+        password: '',
+    }
+  },
+  methods: {
+    async login() {
+        var hash = sha256.create();
+        hash.update(this.password);
+        this.$axios.$post('/login', {
+            username: this.username,
+            password: hash.hex()
+        }).catch(err => {
+            this.$buefy.toast.open({
+            message: 用户名或密码错误,
+            type: 'is-danger'
+            })
+        })
+        
+    }
+  },
+    
+}
+</script>
