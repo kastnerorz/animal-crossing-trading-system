@@ -1,0 +1,25 @@
+version: '3'
+services:
+  backend:
+    image: kastnerorz/acts
+    container_name: acts-svc
+    environment:
+      - MONGO_URL=mongodb://mongo:27017
+      - MONGO_COLLECTION=acts-dev
+      - PORT=8080
+    ports:
+      - 8080:8080
+    networks:
+      - webnet
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - "$PWD/db:/data/db"
+    container_name: acts-mongo
+    networks:
+      - webnet
+
+networks:
+  webnet:

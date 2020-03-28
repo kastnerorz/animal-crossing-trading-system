@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -73,7 +72,6 @@ func GetQuotations(c *gin.Context) {
 	if available != "" {
 		filter["available"], _ = strconv.ParseBool(available)
 	}
-	fmt.Println(filter)
 	mongoCtx, collection := GetMongoContext("quotations")
 	opts := options.Find()
 	opts.SetSort(bson.D{{"price", -1}})
