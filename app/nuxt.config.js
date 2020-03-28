@@ -60,6 +60,9 @@ export default {
     /*
      ** You can extend webpack config here
      */
+    babel: {
+      // plugins: ['transform-vue-jsx'],
+    },
     extend(config, ctx) {},
   },
 }

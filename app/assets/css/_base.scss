@@ -5,6 +5,15 @@ $bg-clr-light: #f5f0e3;
 $bg-clr-lighter: #fffcf5;
 $txt-clr: #67654a;
 
+@mixin control-card {
+  background: $bg-clr-light;
+  margin: 5%;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 0 0 27px 27px;
+  padding: 5%;
+}
+
+// above code should be refactored into separate files
 body {
   background: $bg-clr;
   min-height: 100vh;
