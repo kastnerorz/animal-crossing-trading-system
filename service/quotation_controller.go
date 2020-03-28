@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -62,7 +63,7 @@ func GetQuotations(c *gin.Context) {
 			return
 		}
 
-		filter["quotationType"] = quotationType
+		filter["type"] = quotationType
 	}
 
 	if verified != "" {
@@ -72,7 +73,7 @@ func GetQuotations(c *gin.Context) {
 	if available != "" {
 		filter["available"], _ = strconv.ParseBool(available)
 	}
-
+	fmt.Println(filter)
 	mongoCtx, collection := GetMongoContext("quotations")
 	opts := options.Find()
 	opts.SetSort(bson.D{{"price", -1}})
@@ -87,6 +88,40 @@ func GetQuotations(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": -2, "msg": "报价查询失败！"})
 		log.Println(err)
 		return
+	}
+	if res == nil {
+		res = []Quotation{}
+	}
+	c.JSON(http.StatusOK, res)
+	return
+}
+
+func GetMyQuotation(c *gin.Context) {
+	user, _ := c.Get(IdentityKey)
+	username := user.(*User).Username
+
+	filter := bson.M{
+		"author.username": username,
+	}
+
+	mongoCtx, collection := GetMongoContext("quotations")
+	opts := options.Find()
+	opts.SetSort(bson.D{{"lastModified", -1}})
+	opts.SetLimit(1)
+	sortCursor, err := collection.Find(mongoCtx, filter, opts)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "msg": "报价查询失败！"})
+		log.Println(err)
+		return
+	}
+	var res []Quotation
+	if err = sortCursor.All(mongoCtx, &res); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": -2, "msg": "报价查询失败！"})
+		log.Println(err)
+		return
+	}
+	if res == nil {
+		res = []Quotation{}
 	}
 	c.JSON(http.StatusOK, res)
 	return
@@ -116,11 +151,9 @@ func UpdateQuotation(c *gin.Context) {
 	var quotation Quotation
 	mongoCtx, collection := GetMongoContext("quotations")
 	objectId, _ := primitive.ObjectIDFromHex(c.Param("id"))
-	after := options.After
-	opt := options.FindOneAndUpdateOptions{
-		ReturnDocument: &after,
-	}
-	err = collection.FindOneAndUpdate(mongoCtx, bson.M{"_id": objectId}, bson.M{"$set": set}, &opt).Decode(&quotation)
+	opt := options.FindOneAndUpdate()
+	opt.SetReturnDocument(options.After)
+	err = collection.FindOneAndUpdate(mongoCtx, bson.M{"_id": objectId}, bson.M{"$set": set}, opt).Decode(&quotation)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "msg": "更新报价信息失败！"})
 		log.Println(err)

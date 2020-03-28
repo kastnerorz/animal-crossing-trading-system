@@ -66,12 +66,18 @@ func AuthMiddleware() *jwt.GinJWTMiddleware {
 
 			return nil, jwt.ErrFailedAuthentication
 		},
-		//Unauthorized: func(c *gin.Context, code int, message string) {
-		//	c.JSON(http.StatusUnauthorized, gin.H{
-		//		"code": -1,
-		//		"msg":  "需要登录！",
-		//	})
-		//},
+		Unauthorized: func(c *gin.Context, code int, message string) {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"code": -1,
+				"msg":  "需要登录！",
+			})
+		},
+		//SendCookie:       true,
+		//SecureCookie:     false, //non HTTPS dev environments
+		//CookieHTTPOnly:   true,  // JS can't modify
+		//CookieDomain:     "localhost:8080",
+		//CookieName:       "token", // default jwt
+		//TokenLookup:      "cookie:token",
 		// TokenLookup is a string in the form of "<source>:<name>" that is used
 		// to extract token from the request.
 		// Optional. Default value "header:Authorization".

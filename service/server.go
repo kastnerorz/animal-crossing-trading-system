@@ -13,6 +13,8 @@ func main() {
 	authMiddleware := AuthMiddleware()
 
 	router := gin.Default()
+	router.Use(CorsMiddleware())
+
 	v1 := router.Group("/api/v1")
 	{
 		v1.POST("/users", CreateUser)
@@ -25,6 +27,8 @@ func main() {
 		{
 			v1.POST("/quotations", CreateQuotation)
 			v1.PUT("/quotations/:id", UpdateQuotation)
+			v1.GET("/quotations/my", GetMyQuotation)
+
 		}
 
 	}
