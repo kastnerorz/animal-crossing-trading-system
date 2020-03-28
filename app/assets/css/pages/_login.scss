@@ -1,7 +1,9 @@
-.btn-login {
-  background: $btn-clr-g !important;
-  height: 58px;
-  width: 100%;
-  margin-top: 8px;
-  border-radius: 11px;
+.login-page {
+  .btn-login {
+    background: $btn-clr-g !important;
+    height: 58px;
+    width: 100%;
+    margin-top: 8px;
+    border-radius: 11px;
+  }
 }

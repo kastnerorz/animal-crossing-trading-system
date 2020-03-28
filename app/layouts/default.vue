@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-navbar>
+    <!-- <b-navbar>
         <template slot="brand">
             <b-navbar-item tag="router-link" :to="{ path: '/' }">
                 <img
@@ -34,7 +34,7 @@
                 </div>
             </b-navbar-item>
         </template>
-    </b-navbar>
+    </b-navbar> -->
 
     <section class="main-content columns">
       <div class="container column is-10">
@@ -46,21 +46,21 @@
 
 <script>
 export default {
-  data () {
+  data() {
     return {
       items: [
         {
           title: 'Home',
           icon: 'home',
-          to: { name: 'index' }
+          to: {name: 'index'},
         },
         {
           title: 'Inspire',
           icon: 'lightbulb',
-          to: { name: 'inspire' }
-        }
-      ]
+          to: {name: 'inspire'},
+        },
+      ],
     }
-  }
+  },
 }
 </script>

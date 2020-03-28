@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="login-page">
     <TopMenu opt="login" />
     <section class="form-wrapper">
       <b-field label="用户名">

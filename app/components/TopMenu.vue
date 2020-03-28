@@ -45,6 +45,7 @@ export default {
   margin-bottom: 36px;
 }
 a {
+  padding: 3px;
   border: none;
   outline: none;
   background: none;

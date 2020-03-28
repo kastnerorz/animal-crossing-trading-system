@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="reg-page">
     <TopMenu opt="reg" />
     <section class="form-wrapper">
       <b-field label="用户名">
