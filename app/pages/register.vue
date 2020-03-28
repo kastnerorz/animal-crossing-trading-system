@@ -1,6 +1,6 @@
 <template>
   <div>
-    <TopMenu opt="buy" />
+    <TopMenu opt="reg" />
     <section class="form-wrapper">
       <b-field label="用户名">
         <b-input v-model="username"></b-input>

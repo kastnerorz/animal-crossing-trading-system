@@ -1,27 +1,3 @@
-.form-wrapper {
-  @include control-card;
-  .field {
-    margin-bottom: 18px;
-  }
-  input {
-    border-radius: 11px;
-    background-color: $bg-clr-lighter;
-    font-weight: bold;
-    font-size: 18px;
-    line-height: 25px;
-    color: $txt-clr;
-  }
-  label {
-    color: $txt-clr;
-    font-weight: bold;
-    font-size: 14px;
-    line-height: 20px;
-  }
-  small {
-    display: none;
-  }
-}
-
 .btn-reg {
   background: $btn-clr-g !important;
   height: 58px;
