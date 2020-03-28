@@ -62,5 +62,14 @@ import TopMenu from '../components/TopMenu'
 import ICON from '../components/ICON'
 export default {
   components: {TopMenu, ICON},
+  data() {
+    return {
+      nickName: '葱头',
+      price: 99,
+      playerCount: 1,
+      verified: false,
+      frNum: 'sw-0000-0000-0000',
+    }
+  },
 }
 </script>
