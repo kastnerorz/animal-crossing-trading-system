@@ -33,6 +33,6 @@ func main() {
 
 	}
 
-	//router.Use(gin.Recovery())
+	router.Use(gin.Recovery())
 	router.Run(":" + Port) // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
