@@ -1,14 +1,14 @@
 version: '3'
 services:
   backend:
-    image: kastnerorz/acts
+    image: kastnerorz/animal-crossing-trading-system
     container_name: acts-svc
     environment:
       - MONGO_URL=mongodb://mongo:27017
       - MONGO_COLLECTION=acts-dev
-      - PORT=8080
+      - PORT=8081
     ports:
-      - 8080:8080
+      - 8080:8081
     networks:
       - webnet
   mongo:
