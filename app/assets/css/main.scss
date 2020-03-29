@@ -1,0 +1,54 @@
+@import './base';
+@import './pages/index';
+@import './pages/sell';
+@import './pages/buy';
+@import './pages/login';
+@import './pages/register';
+
+.lr-block {
+  display: flex;
+  flex-direction: row;
+  > * {
+    width: 100%;
+  }
+  div:first-child {
+    .control {
+      margin-right: 20px;
+    }
+  }
+}
+
+.form-wrapper {
+  @include control-card;
+  .field {
+    margin-bottom: 18px;
+  }
+  input {
+    border-radius: 11px;
+    background-color: $bg-clr-lighter;
+    font-weight: bold;
+    font-size: 18px;
+    line-height: 25px;
+    color: $txt-clr;
+    box-shadow: none;
+    border: none;
+  }
+  label {
+    color: $txt-clr;
+    font-weight: bold;
+    font-size: 14px;
+    line-height: 20px;
+  }
+  small {
+    display: none;
+  }
+}
+// above code should be refactored into separate files
+body {
+  background-image: url(../bg-compo.svg);
+  background-repeat: repeat;
+  min-height: 100vh;
+  font-family: PingFang SC;
+  width: 100vw;
+  overflow: hidden;
+}

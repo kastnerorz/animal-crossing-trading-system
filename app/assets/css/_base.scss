@@ -1,0 +1,14 @@
+$bg-clr: #ede1b7;
+$btn-clr-r: #f88d65;
+$btn-clr-g: #7bd9c2;
+$bg-clr-light: #f5f0e3;
+$bg-clr-lighter: #fffcf5;
+$txt-clr: #67654a;
+
+@mixin control-card {
+  background: $bg-clr-light;
+  margin: 5%;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 0 0 27px 27px;
+  padding: 5%;
+}

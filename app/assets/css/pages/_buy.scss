@@ -1,0 +1,20 @@
+.buy-page {
+  .field {
+    width: 100%;
+  }
+  .info-item {
+    .control {
+      display: flex;
+      align-items: center;
+    }
+    .input-icon {
+      position: absolute;
+      left: 5px;
+      z-index: 10;
+      margin-top: 3px;
+      & ~ input {
+        padding-left: 32px;
+      }
+    }
+  }
+}

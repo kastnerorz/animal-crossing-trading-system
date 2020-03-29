@@ -1,44 +1,49 @@
 <template>
-    <section>
-        <b-field label="用户名">
-            <b-input v-model="username" ></b-input>
-        </b-field>
-        <b-field label="密码">
-            <b-input v-model="password" type="password" maxlength="30"></b-input>
-        </b-field>
-        <b-button type="is-primary" @click="login">登录</b-button>
+  <div class="login-page">
+    <TopMenu opt="login" />
+    <section class="form-wrapper">
+      <b-field label="用户名">
+        <b-input v-model="username"></b-input>
+      </b-field>
+      <b-field label="密码">
+        <b-input v-model="password" type="password" maxlength="30"></b-input>
+      </b-field>
+      <b-button class="btn-login" type="is-primary" @click="login"
+        >登录</b-button
+      >
     </section>
+  </div>
 </template>
 
 <script>
-import { sha256 } from 'js-sha256';
+import {sha256} from 'js-sha256'
+import TopMenu from '../components/TopMenu'
 export default {
+  components: {TopMenu},
   name: 'Login',
-  mounted() {
-
-  },
+  mounted() {},
   data() {
     return {
-        username: '',
-        password: '',
+      username: '',
+      password: '',
     }
   },
   methods: {
     async login() {
-        var hash = sha256.create();
-        hash.update(this.password);
-        this.$axios.$post('/login', {
-            username: this.username,
-            password: hash.hex()
-        }).catch(err => {
-            this.$buefy.toast.open({
-            message: 用户名或密码错误,
-            type: 'is-danger'
-            })
+      var hash = sha256.create()
+      hash.update(this.password)
+      this.$axios
+        .$post('/login', {
+          username: this.username,
+          password: hash.hex(),
         })
-        
-    }
+        .catch(err => {
+          this.$buefy.toast.open({
+            message: 用户名或密码错误,
+            type: 'is-danger',
+          })
+        })
+    },
   },
-    
 }
 </script>

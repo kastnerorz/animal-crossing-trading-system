@@ -1,0 +1,38 @@
+.sell-page {
+  .counter-block {
+    display: flex;
+    flex-direction: row;
+    button {
+      outline: none;
+      border: none;
+      width: 40px;
+      height: 40px;
+      background: $btn-clr-r;
+      font-size: 24px;
+      font-weight: bold;
+      &:first-child {
+        border-radius: 8px 0 0 8px;
+      }
+      &:last-child {
+        border-radius: 0 8px 8px 0;
+      }
+    }
+    .input {
+      border-radius: 0;
+      width: 60px;
+    }
+  }
+  .control {
+    display: flex;
+    align-items: center;
+  }
+  .input-icon {
+    position: absolute;
+    left: 5px;
+    z-index: 10;
+    margin-top: 3px;
+    & ~ input {
+      padding-left: 32px;
+    }
+  }
+}
