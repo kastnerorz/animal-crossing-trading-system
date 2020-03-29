@@ -72,9 +72,25 @@ func GetQuotations(c *gin.Context) {
 	if available != "" {
 		filter["available"], _ = strconv.ParseBool(available)
 	}
+
+	now := time.Now()
+	var lowerBound time.Time
+	var upperBound time.Time
+	if now.Hour() <= 12 {
+		lowerBound = time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
+		upperBound = time.Date(now.Year(), now.Month(), now.Day(), 12, 0, 0, 0, time.Local)
+	} else {
+		lowerBound = time.Date(now.Year(), now.Month(), now.Day(), 12, 0, 0, 0, time.Local)
+		upperBound = time.Date(now.Year(), now.Month(), now.Day(), 24, 0, 0, 0, time.Local)
+	}
+	filter["lastModified"] = bson.M{
+		"$gt":  lowerBound,
+		"$lte": upperBound,
+	}
 	mongoCtx, collection := GetMongoContext("quotations")
 	opts := options.Find()
 	opts.SetSort(bson.D{{"price", -1}})
+	opts.SetLimit(10)
 	sortCursor, err := collection.Find(mongoCtx, filter, opts)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "msg": "报价查询失败！"})
