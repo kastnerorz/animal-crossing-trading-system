@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"net/http"
@@ -29,7 +30,7 @@ func CreateUser(c *gin.Context) {
 	mongoCtx, collection := GetMongoContext("users")
 	var res User
 	err = collection.FindOne(mongoCtx, bson.M{"username": user.Username}).Decode(&res)
-	if err != nil {
+	if err != nil && err != mongo.ErrNoDocuments {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": -3, "msg": "（-3）内部错误！"})
 		log.Println(err)
 		return
