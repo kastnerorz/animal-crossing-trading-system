@@ -12,8 +12,8 @@ import (
 )
 
 func CreateQuotation(c *gin.Context) {
-	user, _ := c.Get(IdentityKey)
-	user = user.(*User)
+	o, _ := c.Get(IdentityKey)
+	user := o.(User)
 
 	var quotation Quotation
 	err := c.BindJSON(&quotation)
@@ -34,6 +34,7 @@ func CreateQuotation(c *gin.Context) {
 	}
 
 	mongoCtx, collection := GetMongoContext("quotations")
+	user.Password = ""
 	_, err = collection.InsertOne(mongoCtx, bson.M{
 		"type":             quotation.Type,
 		"author":           user,
@@ -73,16 +74,7 @@ func GetQuotations(c *gin.Context) {
 		filter["available"], _ = strconv.ParseBool(available)
 	}
 
-	now := time.Now()
-	var lowerBound time.Time
-	var upperBound time.Time
-	if now.Hour() <= 12 {
-		lowerBound = time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
-		upperBound = time.Date(now.Year(), now.Month(), now.Day(), 12, 0, 0, 0, time.Local)
-	} else {
-		lowerBound = time.Date(now.Year(), now.Month(), now.Day(), 12, 0, 0, 0, time.Local)
-		upperBound = time.Date(now.Year(), now.Month(), now.Day(), 24, 0, 0, 0, time.Local)
-	}
+	lowerBound, upperBound := GetValidDateLowerAndUpperBound()
 	filter["lastModified"] = bson.M{
 		"$gt":  lowerBound,
 		"$lte": upperBound,
@@ -91,18 +83,19 @@ func GetQuotations(c *gin.Context) {
 	opts := options.Find()
 	opts.SetSort(bson.D{{"price", -1}})
 	opts.SetLimit(10)
-	sortCursor, err := collection.Find(mongoCtx, filter, opts)
+	cursor, err := collection.Find(mongoCtx, filter, opts)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "msg": "报价查询失败！"})
 		log.Println(err)
 		return
 	}
 	var res []Quotation
-	if err = sortCursor.All(mongoCtx, &res); err != nil {
+	if err = cursor.All(mongoCtx, &res); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": -2, "msg": "报价查询失败！"})
 		log.Println(err)
 		return
 	}
+	cursor.Close(mongoCtx)
 	if res == nil {
 		res = []Quotation{}
 	}
@@ -118,22 +111,29 @@ func GetMyQuotation(c *gin.Context) {
 		"author.username": username,
 	}
 
+	lowerBound, upperBound := GetValidDateLowerAndUpperBound()
+	filter["lastModified"] = bson.M{
+		"$gt":  lowerBound,
+		"$lte": upperBound,
+	}
+
 	mongoCtx, collection := GetMongoContext("quotations")
 	opts := options.Find()
 	opts.SetSort(bson.D{{"lastModified", -1}})
 	opts.SetLimit(1)
-	sortCursor, err := collection.Find(mongoCtx, filter, opts)
+	cursor, err := collection.Find(mongoCtx, filter, opts)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "msg": "报价查询失败！"})
 		log.Println(err)
 		return
 	}
 	var res []Quotation
-	if err = sortCursor.All(mongoCtx, &res); err != nil {
+	if err = cursor.All(mongoCtx, &res); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": -2, "msg": "报价查询失败！"})
 		log.Println(err)
 		return
 	}
+	cursor.Close(mongoCtx)
 	if res == nil {
 		res = []Quotation{}
 	}
