@@ -6,6 +6,7 @@ import (
 	"github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"log"
 	"net/http"
 	"time"
@@ -35,7 +36,7 @@ func AuthMiddleware() *jwt.GinJWTMiddleware {
 			var user User
 
 			err := collection.FindOne(mongoCtx, bson.M{"username": claims[IdentityKey].(string)}).Decode(&user)
-			if err != nil {
+			if err != nil && err != mongo.ErrNoDocuments {
 				c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "msg": "用户获取失败."})
 				log.Println(err)
 				return nil
@@ -55,7 +56,7 @@ func AuthMiddleware() *jwt.GinJWTMiddleware {
 			var res User
 
 			err := collection.FindOne(mongoCtx, bson.M{"username": credentials.Username}).Decode(&res)
-			if err != nil {
+			if err != nil && err != mongo.ErrNoDocuments {
 				c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "msg": "用户获取失败."})
 				log.Println(err)
 				return nil, jwt.ErrFailedAuthentication
