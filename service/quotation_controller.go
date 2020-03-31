@@ -129,11 +129,10 @@ func GetQuotations(c *gin.Context) {
 }
 
 func GetMyQuotation(c *gin.Context) {
-	user, _ := c.Get(IdentityKey)
-	username := user.(*User).Username
-
+	o, _ := c.Get(IdentityKey)
+	userId := o.(*User).ID
 	filter := bson.M{
-		"author.username": username,
+		"author._id": userId,
 	}
 
 	lowerBound, upperBound := GetValidDateLowerAndUpperBound()
