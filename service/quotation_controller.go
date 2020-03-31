@@ -1,13 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -28,6 +29,11 @@ func CreateQuotation(c *gin.Context) {
 		return
 	}
 
+	if _, ok := OpenType[quotation.OpenType]; !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"code": -2, "msg": "岛屿开放类型不正确！"})
+		return
+	}
+
 	if quotation.Price == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"code": -3, "msg": "报价不合法！"})
 		return
@@ -35,25 +41,31 @@ func CreateQuotation(c *gin.Context) {
 
 	mongoCtx, collection := GetMongoContext("quotations")
 	user.Password = ""
+	user.SwitchFriendCode = ""
+	user.Username = ""
 	_, err = collection.InsertOne(mongoCtx, bson.M{
-		"type":             quotation.Type,
-		"author":           user,
-		"price":            quotation.Price,
-		"participantCount": 0,
-		"verified":         false,
-		"lastModified":     time.Now(),
+		"type":         quotation.Type,
+		"author":       user,
+		"price":        quotation.Price,
+		"validCount":   0,
+		"invalidCount": 0,
+		"openType":     quotation.OpenType,
+		"passCode":     quotation.PassCode,
+		"handlingFee":  quotation.HandlingFee,
+		"lastModified": time.Now(),
 	})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": -3, "msg": "Error while inserting into database."})
 		log.Println(err)
 		return
 	}
+	c.Status(http.StatusCreated)
 }
 
 func GetQuotations(c *gin.Context) {
 	quotationType := c.Query("type")
-	verified := c.Query("verified")
-	available := c.Query("available")
+	openType := c.Query("openType")
+	//isValid := c.Query("isValid")
 
 	filter := bson.M{}
 
@@ -66,23 +78,36 @@ func GetQuotations(c *gin.Context) {
 		filter["type"] = quotationType
 	}
 
-	if verified != "" {
-		filter["verified"], _ = strconv.ParseBool(verified)
+	if openType != "" {
+		if _, ok := OpenType[openType]; !ok {
+			c.JSON(http.StatusOK, []struct{}{})
+			return
+		}
+		filter["openType"] = openType
 	}
 
-	if available != "" {
-		filter["available"], _ = strconv.ParseBool(available)
-	}
+	//if isValid != "" {
+	//	v, _ := strconv.ParseBool(isValid);
+	//	if v {
+	//		filter["$where"] = "this.validCount > this.inValidCount"
+	//	} else {
+	//		filter["$where"] = "this.validCount < this.inValidCount"
+	//	}
+	//}
 
 	lowerBound, upperBound := GetValidDateLowerAndUpperBound()
 	filter["lastModified"] = bson.M{
 		"$gt":  lowerBound,
 		"$lte": upperBound,
 	}
+	fmt.Print(filter)
 	mongoCtx, collection := GetMongoContext("quotations")
 	opts := options.Find()
 	opts.SetSort(bson.D{{"price", -1}})
 	opts.SetLimit(10)
+	opts.SetProjection(bson.D{
+		{"passCode", 0},
+	})
 	cursor, err := collection.Find(mongoCtx, filter, opts)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "msg": "报价查询失败！"})
@@ -142,6 +167,9 @@ func GetMyQuotation(c *gin.Context) {
 }
 
 func UpdateQuotation(c *gin.Context) {
+	o, _ := c.Get(IdentityKey)
+	user := o.(*User)
+
 	var param QuotationParam
 	err := c.BindJSON(&param)
 	if err != nil {
@@ -149,17 +177,31 @@ func UpdateQuotation(c *gin.Context) {
 		log.Println(err)
 		return
 	}
-	participantCount := param.ParticipantCount
-	verified := param.Verified
+	price := param.Price
+	openType := param.OpenType
+	passCode := param.PassCode
+	handlingFee := param.HandlingFee
 
 	set := bson.M{}
 
-	if participantCount != nil {
-		set["participantCount"] = participantCount
+	if price != nil {
+		set["price"] = price
 	}
 
-	if verified != nil {
-		set["verified"] = verified
+	if openType != "" {
+		if _, ok := OpenType[openType]; !ok {
+			c.JSON(http.StatusBadRequest, gin.H{"code": -2, "msg": "岛屿开放类型不正确！"})
+			return
+		}
+		set["openType"] = openType
+	}
+
+	if passCode != "" {
+		set["passCode"] = passCode
+	}
+
+	if handlingFee != nil {
+		set["handlingFee"] = handlingFee
 	}
 
 	var quotation Quotation
@@ -167,10 +209,15 @@ func UpdateQuotation(c *gin.Context) {
 	objectId, _ := primitive.ObjectIDFromHex(c.Param("id"))
 	opt := options.FindOneAndUpdate()
 	opt.SetReturnDocument(options.After)
-	err = collection.FindOneAndUpdate(mongoCtx, bson.M{"_id": objectId}, bson.M{"$set": set}, opt).Decode(&quotation)
-	if err != nil {
+	err = collection.FindOneAndUpdate(mongoCtx, bson.M{"_id": objectId, "author._id": user.ID}, bson.M{"$set": set}, opt).Decode(&quotation)
+	if err != nil && err != mongo.ErrNoDocuments {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "msg": "更新报价信息失败！"})
 		log.Println(err)
+		return
+	}
+
+	if err == mongo.ErrNoDocuments {
+		c.JSON(http.StatusForbidden, gin.H{"code": -1, "msg": "没有这个报价信息或无权限更改！"})
 		return
 	}
 	c.JSON(http.StatusOK, quotation)

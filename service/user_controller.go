@@ -66,6 +66,7 @@ func CreateUser(c *gin.Context) {
 		"password":         hex.EncodeToString(h.Sum(nil)),
 		"nickname":         user.Nickname,
 		"switchFriendCode": user.SwitchFriendCode,
+		"jikeId":           user.JikeID,
 	})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": -8, "msg": "（-8）内部错误！"})
@@ -85,13 +86,17 @@ func GetUser(c *gin.Context) {
 		{"_id", 1},
 		{"username", 1},
 		{"nickname", 1},
-		{"switchFriendCode", 1},
+		{"jikeId", 1},
 	})
 	err := collection.FindOne(mongoCtx, bson.M{"_id": objectId}, opt).Decode(&res)
-	if err != nil {
+	if err != nil && err != mongo.ErrNoDocuments {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "msg": "（-1）内部错误"})
 		log.Println(err)
 		return
 	}
-	c.JSON(http.StatusOK, res)
+	if res.ID == "" {
+		c.JSON(http.StatusNotFound, struct{}{})
+	} else {
+		c.JSON(http.StatusOK, res)
+	}
 }
