@@ -1,6 +1,9 @@
 package main
 
-import "time"
+import (
+	"github.com/gin-gonic/gin"
+	"time"
+)
 
 func GetValidDateLowerAndUpperBound() (time.Time, time.Time) {
 	now := time.Now()
@@ -14,4 +17,10 @@ func GetValidDateLowerAndUpperBound() (time.Time, time.Time) {
 		upperBound = time.Date(now.Year(), now.Month(), now.Day(), 24, 0, 0, 0, time.Local)
 	}
 	return lowerBound, upperBound
+}
+
+func GetUserFromContext(c *gin.Context) *User {
+	o, _ := c.Get(IdentityKey)
+	user := o.(*User)
+	return user
 }

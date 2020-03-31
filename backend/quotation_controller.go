@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -19,7 +18,7 @@ func CreateQuotation(c *gin.Context) {
 	var quotation Quotation
 	err := c.BindJSON(&quotation)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"code": -1, "msg": "内部错误！"})
+		c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "msg": "（-1）内部错误！"})
 		log.Println(err)
 		return
 	}
@@ -100,7 +99,6 @@ func GetQuotations(c *gin.Context) {
 		"$gt":  lowerBound,
 		"$lte": upperBound,
 	}
-	fmt.Print(filter)
 	mongoCtx, collection := GetMongoContext("quotations")
 	opts := options.Find()
 	opts.SetSort(bson.D{{"price", -1}})

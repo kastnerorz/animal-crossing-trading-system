@@ -100,3 +100,9 @@ func GetUser(c *gin.Context) {
 		c.JSON(http.StatusOK, res)
 	}
 }
+
+func GetMyInfo(c *gin.Context) {
+	user := GetUserFromContext(c)
+	user.Password = ""
+	c.JSON(http.StatusOK, user)
+}
