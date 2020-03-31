@@ -13,7 +13,7 @@ import (
 
 func CreateQuotation(c *gin.Context) {
 	o, _ := c.Get(IdentityKey)
-	user := o.(User)
+	user := o.(*User)
 
 	var quotation Quotation
 	err := c.BindJSON(&quotation)
