@@ -29,14 +29,6 @@ export default {
    */
   css: ['@/assets/css/main.scss'],
   /*
-   ** Plugins to load before mounting the App
-   */
-  plugins: [],
-  /*
-   ** Nuxt.js dev-modules
-   */
-  buildModules: [],
-  /*
    ** Nuxt.js modules
    */
   modules: [
@@ -47,11 +39,19 @@ export default {
     '@nuxtjs/pwa',
   ],
   /*
+   ** Plugins to load before mounting the App
+   */
+  plugins: ['~plugins/axios'],
+  /*
+   ** Nuxt.js dev-modules
+   */
+  buildModules: [],
+  /*
    ** Axios module configuration
    ** See https://axios.nuxtjs.org/options
    */
   axios: {
-    baseURL: 'http://192.168.50.91:8080/api/v1',
+    baseURL: 'http://ac.kastner.cn/api/v1',
   },
   /*
    ** Build configuration

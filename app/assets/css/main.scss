@@ -1,9 +1,14 @@
-@import './base';
-@import './pages/index';
-@import './pages/sell';
-@import './pages/buy';
-@import './pages/login';
-@import './pages/register';
+@import "./base";
+@import "./pages/index";
+@import "./pages/sell";
+@import "./pages/buy";
+@import "./pages/login";
+@import "./pages/register";
+
+* {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
+}
 
 .lr-block {
   display: flex;
@@ -15,7 +20,23 @@
     .control {
       margin-right: 20px;
     }
+    span.control{
+      width: calc(100% - 20px);
+    }
   }
+}
+
+.form-wrapper-null{
+  background: #fcf9f2;
+  margin: 5%;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 27px;
+  padding: 5%;
+  color: #a0a0a0;
+  font-weight: bold;
+  font-size: 20px;
+  text-align: center;
+  line-height: 10;
 }
 
 .form-wrapper {
@@ -32,6 +53,28 @@
     color: $txt-clr;
     box-shadow: none;
     border: none;
+  }
+  .friendCode-wrap{
+    position: relative;
+    &-title {
+      position: absolute;
+      color: #67654a;
+      top: 9px;
+      left: 11px;
+      font-size: 17px;
+      font-weight: bolder;
+      font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+    }
+    &-title-gray {
+      color: #d9d6cb;
+    }
+  }
+  .friendCode {
+    text-transform: uppercase;
+    input {
+      text-transform: uppercase;
+      padding-left: 45px;
+    }
   }
   label {
     color: $txt-clr;
@@ -51,4 +94,28 @@ body {
   font-family: PingFang SC;
   width: 100vw;
   overflow: hidden;
+}
+.select select,
+.verified-show {
+  border-radius: 11px;
+  background-color: #fffcf5;
+  font-weight: bold;
+  font-size: 18px;
+  line-height: 25px;
+  color: #a0a0a0;
+  box-shadow: none;
+  border: none;
+}
+
+.default-color {
+  color: #67654a;
+}
+.invalid-color {
+  color: #f98d63;
+}
+.valid-color {
+  color: #86c587;
+}
+.input::-webkit-input-placeholder {
+  color: #d9d6cb;
 }

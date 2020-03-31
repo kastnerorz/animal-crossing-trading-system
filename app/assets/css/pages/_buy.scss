@@ -1,4 +1,23 @@
 .buy-page {
+  section{
+    position: relative;
+    margin-top: 1rem;
+    padding-top: 2rem;
+  }
+  .section-title{
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 0;
+    display: inline-block;
+    padding: 0.2rem 2rem;
+    font-weight: bold;
+    background-color: #F88D65;
+    border-radius: 44px;
+    color: #F7F0E2;
+    font-size: 16px;
+    text-align: center;
+  }
   .field {
     width: 100%;
   }
@@ -15,6 +34,46 @@
       & ~ input {
         padding-left: 32px;
       }
+    }
+  }
+  input, input[disabled] {
+    background-color: $bg-clr-lighter;
+    color: $txt-clr;
+    box-shadow: none;
+    border: none;
+  }
+  .sell-wrapper {
+    .input-icon {
+      position: absolute;
+      left: 5px;
+      z-index: 10;
+      top: 7px;
+      & ~ input {
+        padding-left: 32px;
+      }
+    }
+  }
+  .btn-req{
+    background: $btn-clr-g !important;
+    height: 50px;
+    width: 100%;
+    margin-top: 8px;
+    border-radius: 11px;
+  }
+  .two-btn-block{
+    display: flex;
+    justify-content: space-between;
+    .button{
+      width: 48%;
+      height: 48px;
+      margin-top: 8px;
+      border-radius: 11px;
+    }
+    .btn-devalue{
+      background: #f98d63;
+    }
+    .btn-value{
+      background: #86C587;
     }
   }
 }
