@@ -1,4 +1,4 @@
-module github.com/kastnerorz/animal-crossing-trading-system
+module github.com/kastnerorz/animal-crossing-trading-system/backend
 
 go 1.13
 
