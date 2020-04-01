@@ -41,6 +41,9 @@
     color: $txt-clr;
     box-shadow: none;
     border: none;
+    opacity: 1;
+    -webkit-opacity: 1;
+    -webkit-text-fill-color: #67654a;
   }
   .sell-wrapper {
     .input-icon {
@@ -54,11 +57,17 @@
     }
   }
   .btn-req{
-    background: $btn-clr-g !important;
+    background: $btn-clr-g;
     height: 50px;
     width: 100%;
     margin-top: 8px;
     border-radius: 11px;
+  }
+  .btn-applyed{
+    background: #937BD9;
+  }
+  .btn-refused{
+    background: #CA3558;
   }
   .two-btn-block{
     display: flex;
@@ -75,5 +84,9 @@
     .btn-value{
       background: #86C587;
     }
+  }
+  .my-realse{
+    color: #aaa;
+    font-size: 12px;
   }
 }

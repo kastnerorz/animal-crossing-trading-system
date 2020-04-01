@@ -1,9 +1,12 @@
 .login-page {
   .btn-login {
-    background: $btn-clr-g !important;
+    background: $btn-clr-g;
     height: 58px;
     width: 100%;
     margin-top: 8px;
     border-radius: 11px;
+  }
+  .btn-register {
+    background: #F95F4F;
   }
 }
