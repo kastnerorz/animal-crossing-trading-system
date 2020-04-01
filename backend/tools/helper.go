@@ -1,7 +1,10 @@
-package main
+package tools
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/kastnerorz/animal-crossing-trading-system/backend/middlewares"
+	"github.com/kastnerorz/animal-crossing-trading-system/backend/models"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"time"
 )
 
@@ -19,8 +22,13 @@ func GetValidDateLowerAndUpperBound() (time.Time, time.Time) {
 	return lowerBound, upperBound
 }
 
-func GetUserFromContext(c *gin.Context) *User {
-	o, _ := c.Get(IdentityKey)
-	user := o.(*User)
+func GetUserFromContext(c *gin.Context) *models.User {
+	o, _ := c.Get(middlewares.IdentityKey)
+	user := o.(*models.User)
 	return user
+}
+
+func ObjectID(id string) primitive.ObjectID {
+	oid, _ := primitive.ObjectIDFromHex(id)
+	return oid
 }

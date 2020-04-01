@@ -1,19 +1,14 @@
-package main
+package routers
 
 import (
-	"flag"
 	"github.com/gin-gonic/gin"
+	"github.com/kastnerorz/animal-crossing-trading-system/backend/middlewares"
 )
 
-func main() {
-	flag.StringVar(&MongoURI, "mongo-url", "mongodb://localhost:27017", "")
-	flag.StringVar(&MongoCollection, "mongo-collection", "acts-dev", "")
-	flag.StringVar(&Port, "port", "8080", "")
-	flag.Parse()
-	authMiddleware := AuthMiddleware()
-
+func SetupRouter() *gin.Engine {
 	router := gin.Default()
-	router.Use(CorsMiddleware())
+	router.Use(middlewares.CorsMiddleware())
+	authMiddleware := middlewares.AuthMiddleware()
 
 	v1 := router.Group("/api/v1")
 	{
@@ -37,5 +32,5 @@ func main() {
 	}
 
 	router.Use(gin.Recovery())
-	router.Run(":" + Port) // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	return router
 }

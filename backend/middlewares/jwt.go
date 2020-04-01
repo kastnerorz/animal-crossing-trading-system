@@ -1,10 +1,12 @@
-package main
+package middlewares
 
 import (
 	"crypto/sha256"
 	"encoding/hex"
 	"github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
+	"github.com/kastnerorz/animal-crossing-trading-system/backend/models"
+	"github.com/kastnerorz/animal-crossing-trading-system/backend/pkg"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"log"
@@ -23,7 +25,7 @@ func AuthMiddleware() *jwt.GinJWTMiddleware {
 		MaxRefresh:  time.Hour,
 		IdentityKey: IdentityKey,
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
-			if v, ok := data.(*User); ok {
+			if v, ok := data.(*models.User); ok {
 				return jwt.MapClaims{
 					IdentityKey: v.Username,
 				}
@@ -32,8 +34,8 @@ func AuthMiddleware() *jwt.GinJWTMiddleware {
 		},
 		IdentityHandler: func(c *gin.Context) interface{} {
 			claims := jwt.ExtractClaims(c)
-			mongoCtx, collection := GetMongoContext("users")
-			var user User
+			mongoCtx, collection := pkg.GetMongoContext("users")
+			var user models.User
 
 			err := collection.FindOne(mongoCtx, bson.M{"username": claims[IdentityKey].(string)}).Decode(&user)
 			if err != nil && err != mongo.ErrNoDocuments {
@@ -45,15 +47,15 @@ func AuthMiddleware() *jwt.GinJWTMiddleware {
 			return &user
 		},
 		Authenticator: func(c *gin.Context) (interface{}, error) {
-			var credentials Credentials
+			var credentials models.Credentials
 			if err := c.BindJSON(&credentials); err != nil {
 				return "", jwt.ErrMissingLoginValues
 			}
 			h := sha256.New()
 			h.Write([]byte(credentials.Password))
 			passwordHash := hex.EncodeToString(h.Sum(nil))
-			mongoCtx, collection := GetMongoContext("users")
-			var res User
+			mongoCtx, collection := pkg.GetMongoContext("users")
+			var res models.User
 
 			err := collection.FindOne(mongoCtx, bson.M{"username": credentials.Username}).Decode(&res)
 			if err != nil && err != mongo.ErrNoDocuments {

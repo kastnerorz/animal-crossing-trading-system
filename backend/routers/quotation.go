@@ -1,7 +1,11 @@
-package main
+package routers
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/kastnerorz/animal-crossing-trading-system/backend/middlewares"
+	"github.com/kastnerorz/animal-crossing-trading-system/backend/models"
+	"github.com/kastnerorz/animal-crossing-trading-system/backend/pkg"
+	"github.com/kastnerorz/animal-crossing-trading-system/backend/tools"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -12,10 +16,10 @@ import (
 )
 
 func CreateQuotation(c *gin.Context) {
-	o, _ := c.Get(IdentityKey)
-	user := o.(*User)
+	o, _ := c.Get(middlewares.IdentityKey)
+	user := o.(*models.User)
 
-	var quotation Quotation
+	var quotation models.Quotation
 	err := c.BindJSON(&quotation)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "msg": "（-1）内部错误！"})
@@ -23,12 +27,12 @@ func CreateQuotation(c *gin.Context) {
 		return
 	}
 
-	if _, ok := QuotationType[quotation.Type]; !ok {
+	if _, ok := models.QuotationType[quotation.Type]; !ok {
 		c.JSON(http.StatusBadRequest, gin.H{"code": -2, "msg": "报价类型不正确！"})
 		return
 	}
 
-	if _, ok := OpenType[quotation.OpenType]; !ok {
+	if _, ok := models.OpenType[quotation.OpenType]; !ok {
 		c.JSON(http.StatusBadRequest, gin.H{"code": -2, "msg": "岛屿开放类型不正确！"})
 		return
 	}
@@ -38,7 +42,7 @@ func CreateQuotation(c *gin.Context) {
 		return
 	}
 
-	mongoCtx, collection := GetMongoContext("quotations")
+	mongoCtx, collection := pkg.GetMongoContext("quotations")
 	user.Password = ""
 	user.SwitchFriendCode = ""
 	user.Username = ""
@@ -69,7 +73,7 @@ func GetQuotations(c *gin.Context) {
 	filter := bson.M{}
 
 	if quotationType != "" {
-		if _, ok := QuotationType[quotationType]; !ok {
+		if _, ok := models.QuotationType[quotationType]; !ok {
 			c.JSON(http.StatusOK, []struct{}{})
 			return
 		}
@@ -78,7 +82,7 @@ func GetQuotations(c *gin.Context) {
 	}
 
 	if openType != "" {
-		if _, ok := OpenType[openType]; !ok {
+		if _, ok := models.OpenType[openType]; !ok {
 			c.JSON(http.StatusOK, []struct{}{})
 			return
 		}
@@ -94,12 +98,12 @@ func GetQuotations(c *gin.Context) {
 	//	}
 	//}
 
-	lowerBound, upperBound := GetValidDateLowerAndUpperBound()
+	lowerBound, upperBound := tools.GetValidDateLowerAndUpperBound()
 	filter["lastModified"] = bson.M{
 		"$gt":  lowerBound,
 		"$lte": upperBound,
 	}
-	mongoCtx, collection := GetMongoContext("quotations")
+	mongoCtx, collection := pkg.GetMongoContext("quotations")
 	opts := options.Find()
 	opts.SetSort(bson.D{{"price", -1}})
 	opts.SetLimit(10)
@@ -112,7 +116,7 @@ func GetQuotations(c *gin.Context) {
 		log.Println(err)
 		return
 	}
-	var res []Quotation
+	var res []models.Quotation
 	if err = cursor.All(mongoCtx, &res); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": -2, "msg": "报价查询失败！"})
 		log.Println(err)
@@ -120,26 +124,26 @@ func GetQuotations(c *gin.Context) {
 	}
 	cursor.Close(mongoCtx)
 	if res == nil {
-		res = []Quotation{}
+		res = []models.Quotation{}
 	}
 	c.JSON(http.StatusOK, res)
 	return
 }
 
 func GetMyQuotation(c *gin.Context) {
-	o, _ := c.Get(IdentityKey)
-	userId := o.(*User).ID
+	o, _ := c.Get(middlewares.IdentityKey)
+	userId := o.(*models.User).ID
 	filter := bson.M{
 		"author._id": userId,
 	}
 
-	lowerBound, upperBound := GetValidDateLowerAndUpperBound()
+	lowerBound, upperBound := tools.GetValidDateLowerAndUpperBound()
 	filter["lastModified"] = bson.M{
 		"$gt":  lowerBound,
 		"$lte": upperBound,
 	}
 
-	mongoCtx, collection := GetMongoContext("quotations")
+	mongoCtx, collection := pkg.GetMongoContext("quotations")
 	opts := options.Find()
 	opts.SetSort(bson.D{{"lastModified", -1}})
 	opts.SetLimit(1)
@@ -149,7 +153,7 @@ func GetMyQuotation(c *gin.Context) {
 		log.Println(err)
 		return
 	}
-	var res []Quotation
+	var res []models.Quotation
 	if err = cursor.All(mongoCtx, &res); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": -2, "msg": "报价查询失败！"})
 		log.Println(err)
@@ -157,17 +161,17 @@ func GetMyQuotation(c *gin.Context) {
 	}
 	cursor.Close(mongoCtx)
 	if res == nil {
-		res = []Quotation{}
+		res = []models.Quotation{}
 	}
 	c.JSON(http.StatusOK, res)
 	return
 }
 
 func UpdateQuotation(c *gin.Context) {
-	o, _ := c.Get(IdentityKey)
-	user := o.(*User)
+	o, _ := c.Get(middlewares.IdentityKey)
+	user := o.(*models.User)
 
-	var param QuotationParam
+	var param models.QuotationParam
 	err := c.BindJSON(&param)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "msg": "内部错误！"})
@@ -186,7 +190,7 @@ func UpdateQuotation(c *gin.Context) {
 	}
 
 	if openType != "" {
-		if _, ok := OpenType[openType]; !ok {
+		if _, ok := models.OpenType[openType]; !ok {
 			c.JSON(http.StatusBadRequest, gin.H{"code": -2, "msg": "岛屿开放类型不正确！"})
 			return
 		}
@@ -201,8 +205,8 @@ func UpdateQuotation(c *gin.Context) {
 		set["handlingFee"] = handlingFee
 	}
 
-	var quotation Quotation
-	mongoCtx, collection := GetMongoContext("quotations")
+	var quotation models.Quotation
+	mongoCtx, collection := pkg.GetMongoContext("quotations")
 	objectId, _ := primitive.ObjectIDFromHex(c.Param("id"))
 	opt := options.FindOneAndUpdate()
 	opt.SetReturnDocument(options.After)

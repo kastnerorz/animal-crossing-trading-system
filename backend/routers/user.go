@@ -1,9 +1,12 @@
-package main
+package routers
 
 import (
 	"crypto/sha256"
 	"encoding/hex"
 	"github.com/gin-gonic/gin"
+	"github.com/kastnerorz/animal-crossing-trading-system/backend/models"
+	"github.com/kastnerorz/animal-crossing-trading-system/backend/pkg"
+	"github.com/kastnerorz/animal-crossing-trading-system/backend/tools"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -14,7 +17,7 @@ import (
 
 func CreateUser(c *gin.Context) {
 
-	var user User
+	var user models.User
 	err := c.BindJSON(&user)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"code": -1, "msg": "（-1）内部错误！"})
@@ -27,8 +30,8 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	mongoCtx, collection := GetMongoContext("users")
-	var res User
+	mongoCtx, collection := pkg.GetMongoContext("users")
+	var res models.User
 	err = collection.FindOne(mongoCtx, bson.M{"username": user.Username}).Decode(&res)
 	if err != nil && err != mongo.ErrNoDocuments {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": -3, "msg": "（-3）内部错误！"})
@@ -60,8 +63,8 @@ func CreateUser(c *gin.Context) {
 
 	h := sha256.New()
 	h.Write([]byte(user.Password))
-	mongoCtx, collection = GetMongoContext("users")
-	_, err = collection.InsertOne(mongoCtx, bson.M{
+	mongoCtx, collection = pkg.GetMongoContext("users")
+	insertResult, err := collection.InsertOne(mongoCtx, bson.M{
 		"username":         user.Username,
 		"password":         hex.EncodeToString(h.Sum(nil)),
 		"nickname":         user.Nickname,
@@ -73,13 +76,13 @@ func CreateUser(c *gin.Context) {
 		log.Println(err)
 		return
 	}
-
-	c.JSON(http.StatusCreated, gin.H{"username": user.Username})
+	id := insertResult.InsertedID.(primitive.ObjectID).Hex()
+	c.JSON(http.StatusCreated, gin.H{"username": user.Username, "id": id})
 }
 
 func GetUser(c *gin.Context) {
-	mongoCtx, collection := GetMongoContext("users")
-	var res User
+	mongoCtx, collection := pkg.GetMongoContext("users")
+	var res models.User
 	objectId, _ := primitive.ObjectIDFromHex(c.Param("id"))
 	opt := options.FindOne()
 	opt.SetProjection(bson.D{
@@ -102,7 +105,7 @@ func GetUser(c *gin.Context) {
 }
 
 func GetMyInfo(c *gin.Context) {
-	user := GetUserFromContext(c)
+	user := tools.GetUserFromContext(c)
 	user.Password = ""
 	c.JSON(http.StatusOK, user)
 }
