@@ -1,8 +1,11 @@
-package main
+package routers
 
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/kastnerorz/animal-crossing-trading-system/backend/models"
+	"github.com/kastnerorz/animal-crossing-trading-system/backend/pkg"
+	"github.com/kastnerorz/animal-crossing-trading-system/backend/tools"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -13,9 +16,9 @@ import (
 )
 
 func CreateApplication(c *gin.Context) {
-	user := GetUserFromContext(c)
+	user := tools.GetUserFromContext(c)
 
-	var applicationParam ApplicationParam
+	var applicationParam models.ApplicationParam
 	err := c.BindJSON(&applicationParam)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "msg": "（-1）内部错误！"})
@@ -29,8 +32,8 @@ func CreateApplication(c *gin.Context) {
 		return
 	}
 
-	mongoCtx, collection := GetMongoContext("quotations")
-	var quotation Quotation
+	mongoCtx, collection := pkg.GetMongoContext("quotations")
+	var quotation models.Quotation
 	objectId, _ := primitive.ObjectIDFromHex(applicationParam.QuotationId)
 	err = collection.FindOne(mongoCtx, bson.M{"_id": objectId}).Decode(&quotation)
 	if err != nil && err != mongo.ErrNoDocuments {
@@ -45,7 +48,7 @@ func CreateApplication(c *gin.Context) {
 		return
 	}
 
-	mongoCtx, collection = GetMongoContext("applications")
+	mongoCtx, collection = pkg.GetMongoContext("applications")
 	user.Password = ""
 	user.Username = ""
 	quotationId, _ := primitive.ObjectIDFromHex(quotation.ID)
@@ -70,28 +73,28 @@ func CreateApplication(c *gin.Context) {
 }
 
 func GetMyApplications(c *gin.Context) {
-	user := GetUserFromContext(c)
+	user := tools.GetUserFromContext(c)
 
 	filter := bson.M{}
 	applicationType := c.Query("type")
 	if applicationType != "" {
-		if _, ok := ApplicationType[applicationType]; !ok {
+		if _, ok := models.ApplicationType[applicationType]; !ok {
 			c.JSON(http.StatusBadRequest, gin.H{"code": -1, "msg": "类型不合法"})
 			return
 		}
 		if applicationType == "REVIEW" {
 			filter["reviewerId"], _ = primitive.ObjectIDFromHex(user.ID)
 		} else if applicationType == "APPLY" {
-			filter["applicant"] = user.ID
+			filter["applicant._id"] = user.ID
 		}
 	}
 
-	lowerBound, upperBound := GetValidDateLowerAndUpperBound()
+	lowerBound, upperBound := tools.GetValidDateLowerAndUpperBound()
 	filter["lastModified"] = bson.M{
 		"$gt":  lowerBound,
 		"$lte": upperBound,
 	}
-	mongoCtx, collection := GetMongoContext("applications")
+	mongoCtx, collection := pkg.GetMongoContext("applications")
 	opts := options.Find()
 	opts.SetSort(bson.D{{"lastModified", -1}})
 	cursor, err := collection.Find(mongoCtx, filter, opts)
@@ -100,7 +103,7 @@ func GetMyApplications(c *gin.Context) {
 		log.Println(err)
 		return
 	}
-	var res []Application
+	var res []models.Application
 	if err = cursor.All(mongoCtx, &res); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": -2, "msg": "申请查询失败！"})
 		log.Println(err)
@@ -108,16 +111,16 @@ func GetMyApplications(c *gin.Context) {
 	}
 	cursor.Close(mongoCtx)
 	if res == nil {
-		res = []Application{}
+		res = []models.Application{}
 	}
 
 	c.JSON(http.StatusOK, res)
 }
 
 func UpdateApplication(c *gin.Context) {
-	user := GetUserFromContext(c)
+	user := tools.GetUserFromContext(c)
 
-	var applicationParam ApplicationParam
+	var applicationParam models.ApplicationParam
 	err := c.BindJSON(&applicationParam)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "msg": "（-1）内部错误！"})
@@ -125,8 +128,8 @@ func UpdateApplication(c *gin.Context) {
 		return
 	}
 
-	mongoCtx, collection := GetMongoContext("applications")
-	var application Application
+	mongoCtx, collection := pkg.GetMongoContext("applications")
+	var application models.Application
 	objectId, _ := primitive.ObjectIDFromHex(c.Param("id"))
 	err = collection.FindOne(mongoCtx, bson.M{"_id": objectId}).Decode(&application)
 	if err != nil && err != mongo.ErrNoDocuments {
@@ -147,7 +150,7 @@ func UpdateApplication(c *gin.Context) {
 	}
 
 	if applicationParam.Status == "" {
-		if _, ok := ApplicationStatus[applicationParam.Status]; !ok || applicationParam.Status == "PENDING" {
+		if _, ok := models.ApplicationStatus[applicationParam.Status]; !ok || applicationParam.Status == "PENDING" {
 			c.JSON(http.StatusBadRequest, gin.H{"code": -2, "msg": "申请结果不合法！"})
 			log.Println(err)
 			return
@@ -163,7 +166,7 @@ func UpdateApplication(c *gin.Context) {
 				return
 			}
 			set["passCode"] = applicationParam.PassCode
-			mongoCtx, collection = GetMongoContext("quotations")
+			mongoCtx, collection = pkg.GetMongoContext("quotations")
 			_, err = collection.UpdateOne(mongoCtx, bson.M{"_id": application.QuotationId}, bson.M{"$set": bson.M{
 				"passCode": applicationParam.PassCode,
 			}})
@@ -183,7 +186,7 @@ func UpdateApplication(c *gin.Context) {
 	}
 	set["status"] = applicationParam.Status
 
-	mongoCtx, collection = GetMongoContext("applications")
+	mongoCtx, collection = pkg.GetMongoContext("applications")
 	_, err = collection.UpdateOne(mongoCtx, bson.M{"_id": objectId}, bson.M{"$set": set})
 	if err != nil && err != mongo.ErrNoDocuments {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "msg": "（-1）内部错误"})
