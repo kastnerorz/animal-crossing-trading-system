@@ -30,14 +30,17 @@
           :class="['friendCode-wrap-title', {'friendCode-wrap-title-gray': switchFriendCode.length === 0}]">SW-</span>
       </div>
     </b-field>
-    <b-button v-if="hasQuotation" class="btn-reg" type="is-primary" @click="validateAllData">
-      {{hasQuotation ? '修改' : '发布'}}</b-button>
+    <b-button v-if="isAuth" class="btn-reg" type="is-primary" @click="validateAllData">{{hasQuotation ? '修改' : '发布'}}
+    </b-button>
+    <b-button v-else class="btn-reg" type="is-primary" @click="loginAni">登录后发布</b-button>
   </section>
 </template>
 <script>
 import ICON from "./ICON";
+import jsCookie from "js-cookie";
 import { mapMutations } from "vuex";
 import asyncValidator from "async-validator";
+let loadingComponent = null;
 const validateRules = {
   price: [
     { required: true, message: "收购价不能为空" },
@@ -81,7 +84,6 @@ export default {
   data() {
     return {
       quoId: "",
-      hasQuotation: false,
       openTypes: [
         {
           type: "PASS_CODE",
@@ -99,10 +101,33 @@ export default {
       switchFriendCode: ""
     };
   },
+  computed: {
+    isLogin() {
+      return !!this.$store.state.user.username;
+    },
+    isAuth() {
+      return !!jsCookie.get("username");
+    },
+    hasQuotation() {
+      return !!this.$store.state.quotation.openType;
+    }
+  },
   mounted() {
-    this.qryMyQuotation();
+    this.checkAuth();
   },
   methods: {
+    async checkAuth() {
+      if (this.isAuth) {
+        loadingComponent = this.$buefy.loading.open();
+        if (!this.isLogin) {
+          let meRes = await this.$axios.$get("/me");
+          this.$store.commit("setUser", meRes);
+          this.qryMyQuotation();
+        } else {
+          this.qryMyQuotation();
+        }
+      }
+    },
     /**
      * 控制 switch 好友编号输入
      */
@@ -153,21 +178,39 @@ export default {
           validator = null;
         });
     },
-    async qryMyQuotation() {
+    /**
+     * 查询我的发布信息
+     */
+    async qryMyQuotation(force) {
+      const switchFriendCode = this.$store.state.user.switchFriendCode || "";
+      const selfQuotation = this.$store.state.quotation || {};
+      if (this.hasQuotation && !force) {
+        loadingComponent.close();
+        this.quoId = selfQuotation.id || "";
+        this.price = selfQuotation.price || "";
+        this.openType = selfQuotation.openType || "";
+        this.passCode = selfQuotation.passCode || "";
+        this.switchFriendCode = switchFriendCode
+          ? switchFriendCode.substring(3)
+          : "";
+        return;
+      }
       let myQuo = await this.$axios.$get("/quotations/my");
-      this.hasQuotation = true;
-      console.log("myQuo", myQuo);
-      if (myQuo) {
+      loadingComponent.close();
+      if (myQuo && myQuo.length) {
         this.quoId = myQuo[0].id || "";
         this.price = myQuo[0].price || "";
         this.openType = myQuo[0].openType || "";
         this.passCode = myQuo[0].passCode || "";
-        this.switchFriendCode = myQuo[0].switchFriendCode || "";
+        this.switchFriendCode = switchFriendCode
+          ? switchFriendCode.substring(3)
+          : "";
         this.$store.commit("setQuotation", {
           price: this.price,
           openType: this.openType,
           passCode: this.passCode,
           switchFriendCode: this.switchFriendCode,
+          id: myQuo[0].id,
           validCount: myQuo[0].validCount,
           invalidCount: myQuo[0].invalidCount
         });
@@ -177,6 +220,7 @@ export default {
      * 发布
      */
     async postQuotations() {
+      loadingComponent = this.$buefy.loading.open();
       const quoParam = {
         type: "SELL",
         handlingFee: 10000,
@@ -196,13 +240,19 @@ export default {
       } else {
         await this.$axios.$post("/quotations", quoParam);
       }
-      await this.qryMyQuotation()
+      await this.qryMyQuotation(true);
       this.$buefy.toast.open({
         duration: 3000,
         message: this.hasQuotation ? "修改成功" : "发布成功",
         position: "is-top",
         type: "is-success"
       });
+    },
+    /**
+     * 转去登录
+     */
+    loginAni() {
+      this.$router.push("/login");
     }
   }
 };
