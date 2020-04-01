@@ -5,29 +5,34 @@
       <ICON type="github" />
     </div>
     <div class="opts">
-      <a href="/buy">
-        <ICON v-bind:type="opt === 'buy' ? 'buyOn' : 'buy'" />
-      </a>
-      <a href="/sell">
-        <ICON v-bind:type="opt === 'sell' ? 'sellOn' : 'sell'" />
-      </a>
-      <a href="/login">
-        <ICON v-bind:type="opt === 'login' ? 'loginOn' : 'login'" />
-      </a>
-      <a href="/register">
-        <ICON v-bind:type="opt === 'reg' ? 'regOn' : 'reg'" />
-      </a>
+      <n-link to="/">
+        <ICON :type="gennerateIcon('buy')" />
+      </n-link>
+      <n-link to="/sell">
+        <ICON :type="gennerateIcon('sell')" />
+      </n-link>
+      <n-link to="/login">
+        <ICON :type="gennerateIcon('login')" />
+      </n-link>
+      <n-link to="/register">
+        <ICON :type="gennerateIcon('reg')" />
+      </n-link>
     </div>
   </div>
 </template>
 
 <script>
-import ICON from '../components/ICON'
+import ICON from "./ICON";
 
 export default {
-  components: {ICON},
-  props: {opt: {type: String, required: true}},
-}
+  components: { ICON },
+  props: { opt: { type: String, required: true } },
+  methods: {
+    gennerateIcon(type) {
+      return this.opt === type ? `${type}On` : type;
+    }
+  }
+};
 </script>
 
 <style lang="scss" scoped>

@@ -16,6 +16,7 @@
   "dependencies": {
     "@nuxtjs/axios": "^5.3.6",
     "@nuxtjs/pwa": "^3.0.0-0",
+    "async-validator": "^3.2.4",
     "js-sha256": "^0.9.0",
     "nuxt": "^2.0.0",
     "nuxt-buefy": "^0.3.2"

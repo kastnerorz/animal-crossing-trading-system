@@ -1,26 +1,9 @@
 .sell-page {
-  .counter-block {
-    display: flex;
-    flex-direction: row;
-    button {
-      outline: none;
-      border: none;
-      width: 40px;
-      height: 40px;
-      background: $btn-clr-r;
-      font-size: 24px;
-      font-weight: bold;
-      &:first-child {
-        border-radius: 8px 0 0 8px;
-      }
-      &:last-child {
-        border-radius: 0 8px 8px 0;
-      }
-    }
-    .input {
-      border-radius: 0;
-      width: 60px;
-    }
+  input[disabled] {
+    background-color: $bg-clr-lighter;
+    color: $txt-clr;
+    box-shadow: none;
+    border: none;
   }
   .control {
     display: flex;
@@ -30,9 +13,27 @@
     position: absolute;
     left: 5px;
     z-index: 10;
-    margin-top: 3px;
+    top: 7px;
     & ~ input {
       padding-left: 32px;
     }
+  }
+  .choose-open-type{
+    select {
+      width: 9rem;
+      &:not(.is-multiple):not(.is-loading)::after{
+        top: 54%;
+      }
+    }
+    .select.is-empty select {
+      color: #d9d6cb;
+    }
+  }
+  .btn-reg {
+    background: $btn-clr-g !important;
+    height: 58px;
+    width: 100%;
+    margin-top: 8px;
+    border-radius: 11px;
   }
 }
