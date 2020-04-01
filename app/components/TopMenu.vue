@@ -11,10 +11,10 @@
       <n-link to="/sell">
         <ICON :type="gennerateIcon('sell')" />
       </n-link>
-      <n-link to="/login">
+      <n-link v-if="!isLogin" to="/login">
         <ICON :type="gennerateIcon('login')" />
       </n-link>
-      <n-link to="/register">
+      <n-link v-if="!isLogin" to="/register">
         <ICON :type="gennerateIcon('reg')" />
       </n-link>
     </div>
@@ -22,11 +22,23 @@
 </template>
 
 <script>
+import jsCookie from "js-cookie";
 import ICON from "./ICON";
 
 export default {
   components: { ICON },
+  data(){
+    return {
+      isLogin: false
+    }
+  },
   props: { opt: { type: String, required: true } },
+  mounted() {
+    const username = jsCookie.get("username");
+    if (username) {
+      this.isLogin = true
+    }
+  },
   methods: {
     gennerateIcon(type) {
       return this.opt === type ? `${type}On` : type;

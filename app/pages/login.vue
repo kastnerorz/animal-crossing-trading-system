@@ -16,34 +16,31 @@
 <script>
 import { sha256 } from "js-sha256";
 import TopMenu from "../components/TopMenu";
+import jsCookie from "js-cookie";
 export default {
   components: { TopMenu },
   name: "Login",
   mounted() {},
   data() {
     return {
-      username: "",
-      password: ""
+      username: "测试 1",
+      password: "1234567"
     };
   },
   methods: {
-    login() {
+    async login() {
       var hash = sha256.create();
       hash.update(this.password);
-      this.$axios
-        .$post("/login", {
-          username: this.username,
-          password: hash.hex()
-        })
-        .then(res => {
-          this.$router.push("/index");
-        })
-        .catch(err => {
-          this.$buefy.toast.open({
-            message: "用户名或密码错误",
-            type: "is-danger"
-          });
-        });
+      const userInfo = {
+        username: this.username,
+        password: hash.hex()
+      };
+      const login = await this.$axios.$post("/login", userInfo);
+      if (login) {
+        jsCookie.set("auth", login.token, { expires: 1 });
+        jsCookie.set("username", this.username, { expires: 1 });
+        this.$router.push("/");
+      }
     }
   }
 };
