@@ -193,6 +193,7 @@ export default {
      * 注册
      */
     async register() {
+      const loadingComponent = this.$buefy.loading.open();
       var hash = sha256.create();
       hash.update(this.password);
       let userInfo = {
@@ -203,6 +204,7 @@ export default {
         switchFriendCode: "SW-" + this.switchFriendCode
       };
       const user = await this.$axios.$post("/users", userInfo);
+      loadingComponent.close()
       if (user) {
         this.$router.push("/");
       }
