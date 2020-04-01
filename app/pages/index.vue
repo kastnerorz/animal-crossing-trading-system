@@ -4,7 +4,8 @@
     <div class="item-container">
       <section>
         <p class="section-title">我发布的报价</p>
-        <div class="form-wrapper sell-wrapper">
+        <Sell v-if="!hasQuote"></Sell>
+        <div v-else class="form-wrapper sell-wrapper">
           <div class="lr-block">
             <b-field label="卖出价">
               <div class="control is-clearfix">
@@ -15,11 +16,11 @@
               </div>
             </b-field>
             <b-field label="有效性">
-              <span class="input verified-show">待验证</span>
+              <span class="input verified-show" :class="{ 'valid-color' : myQuote.validCount > myQuote.invalidCount }">{{myQuote | verifiedTranslate}}</span>
             </b-field>
           </div>
           <b-field label="岛屿开放类型">
-            <span class="input verified-show">密码</span>
+            <span class="input verified-show default-color">{{myQuote.openType | openTypeTranslate}}</span>
           </b-field>
         </div>
       </section>
@@ -66,29 +67,53 @@
 </template>
 
 <script>
+import Sell from "../components/Sell";
 import TopMenu from "../components/TopMenu";
 import ICON from "../components/ICON";
 export default {
-  components: { TopMenu, ICON },
+  components: { TopMenu, ICON, Sell },
   data() {
     return {
       myQuote: {
-        price: 99,
+        price: '',
         verified: false,
         playerCount: 2
       },
       goodsList: []
     };
   },
+  computed: {
+    hasQuote() {
+      return !!this.$store.state.quotation.openType;
+    }
+  },
   filters: {
     openTypeTranslate(val) {
-      return val === 'PASS_CODE' ? '密码' : '仅好友'
+      return val === "PASS_CODE" ? "密码" : "仅好友";
     },
     verifiedTranslate(good) {
       if (good.validCount === good.invalidCount) {
-        return "待验证"
+        return "待验证";
       }
       return good.validCount > good.invalidCount ? "有效" : "无效";
+    }
+  },
+  watch: {
+    hasQuote: {
+      immediate: true,
+      handler(val) {
+        if (val) {
+          const quotation = this.$store.state.quotation;
+          this.myQuote = {
+            price: quotation.price || "",
+            openType: quotation.openType || "",
+            passCode: quotation.passCode || "",
+            switchFriendCode: quotation.switchFriendCode || "",
+            validCount: quotation.validCount || 0,
+            invalidCount: quotation.invalidCount || 0
+          };
+        }
+      }
     }
   },
   mounted() {
