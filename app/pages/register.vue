@@ -104,7 +104,7 @@ export default {
     return {
       username: "",
       password: "",
-      rePassword:"",
+      rePassword: "",
       nickname: "",
       switchFriendCode: "",
       jellowID: ""
@@ -192,26 +192,20 @@ export default {
     /**
      * 注册
      */
-    register() {
+    async register() {
       var hash = sha256.create();
       hash.update(this.password);
-      this.$axios
-        .$post("/users", {
-          username: this.username,
-          password: hash.hex(),
-          nickname: this.nickname,
-          jellowID: this.jellowID || "",
-          switchFriendCode: "SW-" + this.switchFriendCode
-        })
-        .then(res => {
-          this.$router.push("/index");
-        })
-        .catch(err => {
-          this.$buefy.toast.open({
-            message: "注册失败",
-            type: "is-danger"
-          });
-        });
+      let userInfo = {
+        username: this.username,
+        password: hash.hex(),
+        nickname: this.nickname,
+        jellowID: this.jellowID || "",
+        switchFriendCode: "SW-" + this.switchFriendCode
+      };
+      const user = await this.$axios.$post("/users", userInfo);
+      if (user) {
+        this.$router.push("/");
+      }
     },
     /**
      * 控制 switch 好友编号输入
