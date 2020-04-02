@@ -69,3 +69,8 @@ func TestGetMyQuotationPassCode(t *testing.T) {
 	assert.Equal(t, "PASS_CODE", quotation.OpenType)
 	assert.Equal(t, 100000, quotation.HandlingFee)
 }
+
+func TestDeleteQuotation(t *testing.T) {
+	r := PerformRequestWithAuth("DELETE", "/api/v1/quotations/"+quotationId, nil, ReviewerToken)
+	assert.Equal(t, http.StatusOK, r.Code)
+}

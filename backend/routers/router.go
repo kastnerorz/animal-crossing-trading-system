@@ -24,6 +24,7 @@ func SetupRouter() *gin.Engine {
 			v1.POST("/quotations", CreateQuotation)
 			v1.PUT("/quotations/:id", UpdateQuotation)
 			v1.GET("/quotations/my", GetMyQuotation)
+			v1.DELETE("/quotations/:id", DeleteQuotation)
 			v1.POST("/applications", CreateApplication)
 			v1.GET("/applications", GetMyApplications)
 			v1.PUT("/applications/:id", UpdateApplication)

@@ -223,3 +223,20 @@ func UpdateQuotation(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, quotation)
 }
+
+func DeleteQuotation(c *gin.Context) {
+	user := tools.GetUserFromContext(c)
+
+	mongoCtx, collection := pkg.GetMongoContext("quotations")
+	_, err := collection.DeleteOne(mongoCtx, bson.M{"_id": tools.ObjectID(c.Param("id")), "author._id": user.ID})
+	if err != nil && err != mongo.ErrNoDocuments {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "msg": "（-1）内部错误"})
+		log.Println(err)
+		return
+	}
+	if err == mongo.ErrNoDocuments {
+		c.Status(http.StatusNotFound)
+		return
+	}
+	c.Status(http.StatusOK)
+}
