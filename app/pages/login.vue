@@ -30,7 +30,7 @@ export default {
   },
   methods: {
     async login() {
-      const loadingComponent = this.$buefy.loading.open();
+      this.$store.commit('setLoading');
       var hash = sha256.create();
       hash.update(this.password);
       const userInfo = {
@@ -39,11 +39,17 @@ export default {
       };
       const login = await this.$axios.$post("/login", userInfo);
       jsCookie.set("auth", login.token, { expires: 1 });
-      jsCookie.set("username", this.username, { expires: 1 });
       const getMe = await this.$axios.$get("/me");
-      loadingComponent.close()
       this.$store.commit("setUser", getMe);
-      this.$router.push("/");
+      this.$buefy.toast.open({
+        duration: 2000,
+        message: "登录成功，即将跳转",
+        position: "is-top",
+        type: "is-success"
+      });
+      setTimeout(() => {
+        this.$router.push("/");
+      }, 2000);
     },
     /**
      * 转去登录

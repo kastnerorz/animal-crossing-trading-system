@@ -2,7 +2,7 @@ import Vue from "vue";
 import jsCookie from "js-cookie";
 const vm = new Vue({});
 
-export default function({ $axios, redirect }) {
+export default function({store, redirect, app: { $axios }}) {
   $axios.onRequest(config => {
     const auth = jsCookie.get("auth");
     config.headers = {
@@ -11,8 +11,11 @@ export default function({ $axios, redirect }) {
     };
   });
   $axios.onError(error => {
+    store.commit('closeLoading')
     let msg = "";
+    let status = ""
     try {
+      status = error.response.status
       msg = error.response.data.msg;
     } catch (error) {
       msg = "网络错误！";
@@ -23,5 +26,11 @@ export default function({ $axios, redirect }) {
       position: "is-top",
       type: "is-danger"
     });
+    if (status === 401) {
+      jsCookie.remove('auth', { path: '' });
+      setTimeout(()=>{
+        redirect('/login')
+      }, 1000)
+    }
   });
 }

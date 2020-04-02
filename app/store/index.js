@@ -1,21 +1,34 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
+import Vue from "vue";
+import Vuex from "vuex";
+const vm = new Vue({});
+Vue.use(Vuex);
 
-Vue.use(Vuex)
-
-const store = () => new Vuex.Store({
-  state: {
-    user: {},
-    quotation: {}
-  },
-  mutations: {
-    setUser (state, user) {
-      state.user = user
+const store = () =>
+  new Vuex.Store({
+    state: {
+      loadingComponent: "",
+      user: {},
+      quotation: {}
     },
-    setQuotation (state, quotation) {
-      state.quotation = quotation
-    },
-  }
-})
+    mutations: {
+      setUser(state, user) {
+        state.user = user;
+      },
+      setQuotation(state, quotation) {
+        state.quotation = quotation;
+      },
+      setLoading(state) {
+        if (typeof state.loadingComponent === "string") {
+          state.loadingComponent = vm.$buefy.loading.open();
+        }
+      },
+      closeLoading(state) {
+        if (typeof state.loadingComponent === "object") {
+          state.loadingComponent.close();
+          state.loadingComponent = "";
+        }
+      }
+    }
+  });
 
-export default store
+export default store;

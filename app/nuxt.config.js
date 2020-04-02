@@ -8,14 +8,14 @@ export default {
    ** Headers of the page
    */
   head: {
-    title: process.env.npm_package_name || '',
+    title: '大头菜交易市场 -- 集合啦，动物森友会！',
     meta: [
       {charset: 'utf-8'},
       {name: 'viewport', content: 'width=device-width, initial-scale=1'},
       {
-        hid: 'description',
-        name: 'description',
-        content: process.env.npm_package_description || '',
+        hid: '大头菜交易市场',
+        name: '大头菜交易市场  动物之森',
+        content: '集合啦，动物森友会！',
       },
     ],
     link: [{rel: 'icon', type: 'image/x-icon', href: '/favicon.ico'}],
@@ -65,4 +65,7 @@ export default {
     },
     extend(config, ctx) {},
   },
+  router: {
+    middleware: ['routerChange']
+  }
 }
