@@ -1,7 +1,7 @@
 <template>
   <section class="form-wrapper">
     <div class="lr-block">
-      <b-field label="卖出价">
+      <b-field label="报价">
         <div class="control is-clearfix">
           <div class="input-icon">
             <ICON type="money" />
@@ -40,7 +40,6 @@ import ICON from "./ICON";
 import jsCookie from "js-cookie";
 import { mapMutations } from "vuex";
 import asyncValidator from "async-validator";
-let loadingComponent = null;
 const validateRules = {
   price: [
     { required: true, message: "收购价不能为空" },
@@ -81,6 +80,12 @@ const validateRules = {
 };
 export default {
   components: { ICON },
+  props: {
+    tradeType: {
+      type: String,
+      default: "sell"
+    }
+  },
   data() {
     return {
       quoId: "",
@@ -94,11 +99,12 @@ export default {
           text: "仅好友"
         }
       ],
-      openType: null,
+      openType: "PASS_CODE",
       price: "",
       verified: false,
       passCode: "",
-      switchFriendCode: ""
+      switchFriendCode: "",
+      hasQuotation: false
     };
   },
   computed: {
@@ -106,11 +112,13 @@ export default {
       return !!this.$store.state.user.username;
     },
     isAuth() {
-      return !!jsCookie.get("username");
+      return !!jsCookie.get("auth");
     },
-    hasQuotation() {
-      return !!this.$store.state.quotation.openType;
-    }
+  },
+  watch: {
+    tradeType(val) {
+      console.log('tradeType', val);
+    } 
   },
   mounted() {
     this.checkAuth();
@@ -118,14 +126,13 @@ export default {
   methods: {
     async checkAuth() {
       if (this.isAuth) {
-        loadingComponent = this.$buefy.loading.open();
+        this.$store.commit("setLoading");
         if (!this.isLogin) {
           let meRes = await this.$axios.$get("/me");
+          this.$store.commit("closeLoading");
           this.$store.commit("setUser", meRes);
-          this.qryMyQuotation();
-        } else {
-          this.qryMyQuotation();
         }
+        await this.qryMyQuotation();
       }
     },
     /**
@@ -183,21 +190,11 @@ export default {
      */
     async qryMyQuotation(force) {
       const switchFriendCode = this.$store.state.user.switchFriendCode || "";
-      const selfQuotation = this.$store.state.quotation || {};
-      if (this.hasQuotation && !force) {
-        loadingComponent.close();
-        this.quoId = selfQuotation.id || "";
-        this.price = selfQuotation.price || "";
-        this.openType = selfQuotation.openType || "";
-        this.passCode = selfQuotation.passCode || "";
-        this.switchFriendCode = switchFriendCode
-          ? switchFriendCode.substring(3)
-          : "";
-        return;
-      }
-      let myQuo = await this.$axios.$get("/quotations/my");
-      loadingComponent.close();
+      this.$store.commit("setLoading");
+      let myQuo = await this.$axios.$get(`/my-quotations?type=${this.tradeType}`);
+      this.$store.commit("closeLoading");
       if (myQuo && myQuo.length) {
+        this.hasQuotation = true
         this.quoId = myQuo[0].id || "";
         this.price = myQuo[0].price || "";
         this.openType = myQuo[0].openType || "";
@@ -220,9 +217,9 @@ export default {
      * 发布
      */
     async postQuotations() {
-      loadingComponent = this.$buefy.loading.open();
+      this.$store.commit("setLoading");
       const quoParam = {
-        type: "SELL",
+        type: this.tradeType,
         handlingFee: 10000,
         price: this.price,
         openType: this.openType,
@@ -278,8 +275,11 @@ input[disabled] {
   }
 }
 .choose-open-type {
+  /deep/ .select {
+    width: 100%;
+  }
   /deep/ select {
-    width: 9rem;
+    width: 100%;
     color: #4a4a4a;
     &:not(.is-multiple):not(.is-loading)::after {
       top: 54%;
