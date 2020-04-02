@@ -30,7 +30,7 @@ export default {
   },
   methods: {
     async login() {
-      this.$store.commit('setLoading');
+      this.$store.commit("setLoading");
       var hash = sha256.create();
       hash.update(this.password);
       const userInfo = {
@@ -40,7 +40,6 @@ export default {
       const login = await this.$axios.$post("/login", userInfo);
       jsCookie.set("auth", login.token, { expires: 1 });
       const getMe = await this.$axios.$get("/me");
-      this.$store.commit("setUser", getMe);
       this.$buefy.toast.open({
         duration: 2000,
         message: "登录成功，即将跳转",
@@ -48,7 +47,20 @@ export default {
         type: "is-success"
       });
       setTimeout(() => {
-        this.$router.push("/");
+        this.$store.commit("setUser", getMe);
+        const cDate = new Date();
+        // cDate.setDate(cDate.getDate()+2);
+        const cDay = cDate.getDay();
+        const cHour = cDate.getHours();
+        if (cDay === 0) {
+          this.$router.push("/");
+        } else {
+          if (cHour < 12) {
+            this.$router.push("/sell");
+          } else {
+            this.$router.push("/");
+          }
+        }
       }, 2000);
     },
     /**

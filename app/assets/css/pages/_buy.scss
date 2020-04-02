@@ -21,6 +21,11 @@
   .field {
     width: 100%;
   }
+  .lr-block{ 
+    .field {
+      width: 50%;
+    }
+  }
   .info-item {
     .control {
       display: flex;

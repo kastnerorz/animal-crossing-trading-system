@@ -22,6 +22,10 @@
     }
     span.control{
       width: calc(100% - 20px);
+      white-space: nowrap;
+      display: inline-block;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
 }
@@ -36,7 +40,7 @@
   font-weight: bold;
   font-size: 20px;
   text-align: center;
-  line-height: 10;
+  line-height: 8;
 }
 
 .form-wrapper {
@@ -118,4 +122,5 @@ body {
 }
 .input::-webkit-input-placeholder {
   color: #d9d6cb;
+  -webkit-text-fill-color: #d9d6cb;
 }
