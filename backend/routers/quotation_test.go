@@ -24,7 +24,7 @@ func TestGetQuotations(t *testing.T) {
 	var quotations []models.Quotation
 	err := json.Unmarshal([]byte(r.Body.String()), &quotations)
 	quotation := quotations[0]
-	quotationId = quotation.ID
+	quotationId = quotation.ID.Hex()
 	assert.Nil(t, err)
 	assert.Equal(t, 40, quotation.Price)
 	assert.Equal(t, "PASS_CODE", quotation.OpenType)

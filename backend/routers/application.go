@@ -52,7 +52,7 @@ func CreateApplication(c *gin.Context) {
 	user.Username = ""
 	_, err = collection.InsertOne(mongoCtx, bson.M{
 		"applicant":          user,
-		"quotationId":        tools.ObjectID(quotation.ID),
+		"quotationId":        quotation.ID,
 		"quotationType":      quotation.OpenType,
 		"reviewerNickname":   quotation.Author.Nickname,
 		"reviewerId":         quotation.Author.ID,

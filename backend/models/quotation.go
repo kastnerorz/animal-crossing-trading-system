@@ -1,18 +1,21 @@
 package models
 
-import "time"
+import (
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"time"
+)
 
 type Quotation struct {
-	ID           string    `json:"id" bson:"_id"`
-	Type         string    `json:"type" bson:"type"`
-	Price        int       `json:"price" bson:"price"`
-	Author       User      `json:"author" bson:"author"`
-	ValidCount   int       `json:"validCount" bson:"validCount"`
-	InvalidCount int       `json:"invalidCount" bson:"invalidCount"`
-	OpenType     string    `json:"openType" bson:"openType"`
-	PassCode     string    `json:"passCode,omitempty" bson:"passCode"`
-	HandlingFee  int       `json:"handlingFee" bson:"handlingFee"`
-	LastModified time.Time `json:"lastModified" bson:"lastModified"`
+	ID           primitive.ObjectID `json:"id" bson:"_id"`
+	Type         string             `json:"type" bson:"type"`
+	Price        int                `json:"price" bson:"price"`
+	Author       User               `json:"author" bson:"author"`
+	ValidCount   int                `json:"validCount" bson:"validCount"`
+	InvalidCount int                `json:"invalidCount" bson:"invalidCount"`
+	OpenType     string             `json:"openType" bson:"openType"`
+	PassCode     string             `json:"passCode,omitempty" bson:"passCode"`
+	HandlingFee  int                `json:"handlingFee" bson:"handlingFee"`
+	LastModified time.Time          `json:"lastModified" bson:"lastModified"`
 }
 
 type QuotationParam struct {
