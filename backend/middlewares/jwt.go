@@ -61,7 +61,7 @@ func AuthMiddleware() *jwt.GinJWTMiddleware {
 			if err != nil && err != mongo.ErrNoDocuments {
 				c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "msg": "用户获取失败."})
 				log.Println(err)
-				return nil, jwt.ErrFailedAuthentication
+				return nil, jwt.ErrFailedTokenCreation
 			}
 			if res.Password == passwordHash {
 				return &res, nil
@@ -70,17 +70,24 @@ func AuthMiddleware() *jwt.GinJWTMiddleware {
 			return nil, jwt.ErrFailedAuthentication
 		},
 		Unauthorized: func(c *gin.Context, code int, message string) {
-			c.JSON(http.StatusUnauthorized, gin.H{
+			c.JSON(code, gin.H{
 				"code": -1,
-				"msg":  "需要登录！",
+				"msg":  message,
 			})
 		},
-		//SendCookie:       true,
-		//SecureCookie:     false, //non HTTPS dev environments
-		//CookieHTTPOnly:   true,  // JS can't modify
-		//CookieDomain:     "localhost:8080",
-		//CookieName:       "token", // default jwt
-		//TokenLookup:      "cookie:token",
+		HTTPStatusMessageFunc: func(e error, c *gin.Context) string {
+			switch e {
+			case jwt.ErrExpiredToken:
+				return "Token已过期！请重新登录"
+			case jwt.ErrEmptyAuthHeader:
+				return "无效的Token"
+			case jwt.ErrMissingLoginValues:
+				return "用户名或密码不能为空！"
+			case jwt.ErrFailedAuthentication:
+				return "用户名或密码错误！"
+			}
+			return e.Error()
+		},
 		// TokenLookup is a string in the form of "<source>:<name>" that is used
 		// to extract token from the request.
 		// Optional. Default value "header:Authorization".
