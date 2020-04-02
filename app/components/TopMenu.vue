@@ -2,7 +2,9 @@
   <div class="menu-container">
     <div class="menu-header">
       <ICON type="logo" />
-      <ICON type="github" />
+      <span @click="signOut">
+        <ICON type="github" />
+      </span>
     </div>
     <div class="opts">
       <n-link to="/">
@@ -27,21 +29,37 @@ import ICON from "./ICON";
 
 export default {
   components: { ICON },
-  data(){
-    return {
-      isLogin: false
-    }
+  data() {
+    return {};
   },
   props: { opt: { type: String, required: true } },
-  mounted() {
-    const username = jsCookie.get("username");
-    if (username) {
-      this.isLogin = true
+
+  computed: {
+    isLogin() {
+      return !!this.$store.state.user.username;
     }
   },
   methods: {
     gennerateIcon(type) {
       return this.opt === type ? `${type}On` : type;
+    },
+    signOut() {
+      if (!this.isLogin) {
+        return;
+      }
+      this.$store.commit('setLoading')
+      jsCookie.remove("auth", { path: "" });
+      this.$buefy.toast.open({
+        duration: 2000,
+        message: "退出成功",
+        position: "is-top",
+        type: "is-success"
+      });
+      setTimeout(() => {
+        this.$store.commit("setUser", {});
+        this.$store.commit("setQuotation", {});
+        this.$router.push("/login");
+      }, 2000);
     }
   }
 };
