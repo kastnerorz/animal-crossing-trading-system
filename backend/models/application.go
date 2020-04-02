@@ -6,7 +6,7 @@ import (
 )
 
 type Application struct {
-	ID               string             `json:"id" bson:"_id"`
+	ID               primitive.ObjectID `json:"id" bson:"_id"`
 	Applicant        User               `json:"applicant" bson:"applicant"`
 	QuotationId      primitive.ObjectID `json:"quotationId" bson:"quotationId"`
 	QuotationType    string             `json:"quotationType" bson:"quotationType"`

@@ -27,7 +27,7 @@ func TestGetMyApplicationsApplicant(t *testing.T) {
 	var applications []models.Application
 	err := json.Unmarshal([]byte(r.Body.String()), &applications)
 	application := applications[0]
-	ApplicationId = application.ID
+	ApplicationId = application.ID.Hex()
 	assert.Nil(t, err)
 	assert.Equal(t, testdata.QuotationId, application.QuotationId.Hex())
 	assert.Equal(t, "FRIENDS", application.QuotationType)
@@ -49,7 +49,7 @@ func TestGetMyApplicationsReviewer(t *testing.T) {
 	var applications []models.Application
 	err := json.Unmarshal([]byte(r.Body.String()), &applications)
 	application := applications[0]
-	ApplicationId = application.ID
+	ApplicationId = application.ID.Hex()
 	assert.Nil(t, err)
 	assert.Equal(t, testdata.QuotationId, application.QuotationId.Hex())
 	assert.Equal(t, "FRIENDS", application.QuotationType)
@@ -73,7 +73,7 @@ func TestGetMyApplicationsApplicantPassCode(t *testing.T) {
 	var applications []models.Application
 	err := json.Unmarshal([]byte(r.Body.String()), &applications)
 	application := applications[0]
-	ApplicationId = application.ID
+	ApplicationId = application.ID.Hex()
 	assert.Nil(t, err)
 	assert.Equal(t, testdata.QuotationIdPassCode, application.QuotationId.Hex())
 	assert.Equal(t, "PASS_CODE", application.QuotationType)
@@ -95,7 +95,7 @@ func TestGetMyApplicationsReviewerPassCode(t *testing.T) {
 	var applications []models.Application
 	err := json.Unmarshal([]byte(r.Body.String()), &applications)
 	application := applications[0]
-	ApplicationId = application.ID
+	ApplicationId = application.ID.Hex()
 	assert.Nil(t, err)
 	assert.Equal(t, testdata.QuotationIdPassCode, application.QuotationId.Hex())
 	assert.Equal(t, "PASS_CODE", application.QuotationType)
