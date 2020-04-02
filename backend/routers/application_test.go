@@ -103,3 +103,8 @@ func TestGetMyApplicationsReviewerPassCode(t *testing.T) {
 	assert.Equal(t, "", application.SwitchFriendCode)
 	assert.Equal(t, "ACCEPT", application.Status)
 }
+
+func TestDeleteApplication(t *testing.T) {
+	r := PerformRequestWithAuth("DELETE", "/api/v1/applications/"+ApplicationId, nil, ApplicantToken)
+	assert.Equal(t, http.StatusOK, r.Code)
+}

@@ -196,3 +196,20 @@ func UpdateApplication(c *gin.Context) {
 
 	c.Status(http.StatusOK)
 }
+
+func DeleteApplication(c *gin.Context) {
+	user := tools.GetUserFromContext(c)
+
+	mongoCtx, collection := pkg.GetMongoContext("applications")
+	_, err := collection.DeleteOne(mongoCtx, bson.M{"_id": tools.ObjectID(c.Param("id")), "applicant._id": user.ID})
+	if err != nil && err != mongo.ErrNoDocuments {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "msg": "（-1）内部错误"})
+		log.Println(err)
+		return
+	}
+	if err == mongo.ErrNoDocuments {
+		c.Status(http.StatusNotFound)
+		return
+	}
+	c.Status(http.StatusOK)
+}

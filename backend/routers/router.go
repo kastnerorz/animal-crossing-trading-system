@@ -27,6 +27,7 @@ func SetupRouter() *gin.Engine {
 			v1.POST("/applications", CreateApplication)
 			v1.GET("/applications", GetMyApplications)
 			v1.PUT("/applications/:id", UpdateApplication)
+			v1.DELETE("/applications/:id", DeleteApplication)
 		}
 
 	}
