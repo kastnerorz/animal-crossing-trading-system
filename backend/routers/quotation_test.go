@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/kastnerorz/animal-crossing-trading-system/backend/models"
+	"github.com/kastnerorz/animal-crossing-trading-system/backend/testdata"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
@@ -32,6 +33,19 @@ func TestGetQuotations(t *testing.T) {
 	assert.Equal(t, 100000, quotation.HandlingFee)
 }
 
+func TestGetQuotation(t *testing.T) {
+	r := PerformRequest("GET", "/api/v1/quotations/"+testdata.QuotationId, nil)
+	assert.Equal(t, http.StatusOK, r.Code)
+
+	var quotation models.Quotation
+	err := json.Unmarshal([]byte(r.Body.String()), &quotation)
+	assert.Nil(t, err)
+	assert.Equal(t, 40, quotation.Price)
+	assert.Equal(t, "FRIENDS", quotation.OpenType)
+	assert.Equal(t, "", quotation.PassCode)
+	assert.Equal(t, 100000, quotation.HandlingFee)
+}
+
 func TestUpdateQuotation(t *testing.T) {
 	body := []byte(`{"price":90,"handlingFee":0,"openType":"FRIENDS"}`)
 	r := PerformRequestWithAuth("PUT", "/api/v1/quotations/"+quotationId, bytes.NewBuffer(body), ReviewerToken)
@@ -39,7 +53,7 @@ func TestUpdateQuotation(t *testing.T) {
 }
 
 func TestGetMyQuotation(t *testing.T) {
-	r := PerformRequestWithAuth("GET", "/api/v1/quotations/my", nil, ReviewerToken)
+	r := PerformRequestWithAuth("GET", "/api/v1/my-quotations", nil, ReviewerToken)
 	assert.Equal(t, http.StatusOK, r.Code)
 
 	var quotations []models.Quotation
@@ -58,7 +72,7 @@ func TestCreateQuotationPassCode(t *testing.T) {
 }
 
 func TestGetMyQuotationPassCode(t *testing.T) {
-	r := PerformRequestWithAuth("GET", "/api/v1/quotations/my", nil, ReviewerToken)
+	r := PerformRequestWithAuth("GET", "/api/v1/my-quotations", nil, ReviewerToken)
 	assert.Equal(t, http.StatusOK, r.Code)
 
 	var quotations []models.Quotation

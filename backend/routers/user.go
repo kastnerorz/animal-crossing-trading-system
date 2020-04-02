@@ -104,6 +104,64 @@ func GetUser(c *gin.Context) {
 	}
 }
 
+func UpdateUser(c *gin.Context) {
+	user := tools.GetUserFromContext(c)
+
+	var param models.User
+	err := c.BindJSON(&param)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "msg": "（-1）内部错误！"})
+		log.Println(err)
+		return
+	}
+
+	set := bson.M{}
+	applicationSet := bson.M{}
+	quotationSet := bson.M{}
+	if param.Nickname != "" {
+		set["nickname"] = param.Nickname
+		applicationSet["applicant.nickname"] = param.Nickname
+		quotationSet["author.nickname"] = param.Nickname
+	}
+
+	if param.SwitchFriendCode != "" {
+		set["switchFriendCode"] = param.SwitchFriendCode
+		applicationSet["applicant.switchFriendCode"] = param.SwitchFriendCode
+		quotationSet["author.switchFriendCode"] = param.SwitchFriendCode
+	}
+
+	if param.JikeID != "" {
+		set["jikeId"] = param.JikeID
+		applicationSet["applicant.jikeId"] = param.JikeID
+		quotationSet["author.jikeId"] = param.JikeID
+	}
+
+	mongoCtx, collection := pkg.GetMongoContext("users")
+	_, err = collection.UpdateOne(mongoCtx, bson.M{"_id": user.ID}, bson.M{"$set": set})
+	if err != nil && err != mongo.ErrNoDocuments {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "msg": "（-1）内部错误"})
+		log.Println(err)
+		return
+	}
+
+	mongoCtx, collection = pkg.GetMongoContext("applications")
+	_, err = collection.UpdateMany(mongoCtx, bson.M{"applicant._id": user.ID}, bson.M{"$set": applicationSet})
+	if err != nil && err != mongo.ErrNoDocuments {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "msg": "（-2）内部错误"})
+		log.Println(err)
+		return
+	}
+
+	mongoCtx, collection = pkg.GetMongoContext("quotations")
+	_, err = collection.UpdateMany(mongoCtx, bson.M{"author._id": user.ID}, bson.M{"$set": quotationSet})
+	if err != nil && err != mongo.ErrNoDocuments {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "msg": "（-3）内部错误"})
+		log.Println(err)
+		return
+	}
+
+	c.Status(http.StatusOK)
+}
 func GetMyInfo(c *gin.Context) {
 	user := tools.GetUserFromContext(c)
 	user.Password = ""

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/kastnerorz/animal-crossing-trading-system/backend/models"
+	"github.com/kastnerorz/animal-crossing-trading-system/backend/testdata"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
@@ -49,6 +50,22 @@ func TestGetUser(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, r.Code)
 }
 
+func TestUpdateUser(t *testing.T) {
+	body := []byte(`{"nickname":"_siyuan","switchFriendCode":"SW-5678-1234-1234","jikeId":"_siyuan"}`)
+	r := PerformRequestWithAuth("PUT", "/api/v1/me", bytes.NewBuffer(body), ReviewerToken)
+	assert.Equal(t, http.StatusOK, r.Code)
+
+	r = PerformRequest("GET", "/api/v1/quotations/"+testdata.QuotationId, nil)
+	assert.Equal(t, http.StatusOK, r.Code)
+
+	var quotation models.Quotation
+	err := json.Unmarshal([]byte(r.Body.String()), &quotation)
+	assert.Nil(t, err)
+	assert.Equal(t, "_siyuan", quotation.Author.Nickname)
+	assert.Equal(t, "SW-5678-1234-1234", quotation.Author.SwitchFriendCode)
+	assert.Equal(t, "_siyuan", quotation.Author.JikeID)
+}
+
 func TestGetMyInfo(t *testing.T) {
 	// normal
 	r := PerformRequestWithAuth("GET", "/api/v1/me", nil, ReviewerToken)
@@ -58,7 +75,7 @@ func TestGetMyInfo(t *testing.T) {
 	err := json.Unmarshal([]byte(r.Body.String()), &user)
 	assert.Nil(t, err)
 	assert.Equal(t, "zed", user.Username)
-	assert.Equal(t, "张豆", user.Nickname)
-	assert.Equal(t, "SW-1234-1234-1234", user.SwitchFriendCode)
-	assert.Equal(t, "张豆", user.JikeID)
+	assert.Equal(t, "_siyuan", user.Nickname)
+	assert.Equal(t, "SW-5678-1234-1234", user.SwitchFriendCode)
+	assert.Equal(t, "_siyuan", user.JikeID)
 }

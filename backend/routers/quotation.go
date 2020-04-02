@@ -45,7 +45,6 @@ func CreateQuotation(c *gin.Context) {
 	mongoCtx, collection := pkg.GetMongoContext("quotations")
 	user.Password = ""
 	user.SwitchFriendCode = ""
-	user.Username = ""
 	_, err = collection.InsertOne(mongoCtx, bson.M{
 		"type":         quotation.Type,
 		"author":       user,
@@ -130,6 +129,21 @@ func GetQuotations(c *gin.Context) {
 	return
 }
 
+func GetQuotation(c *gin.Context) {
+	mongoCtx, collection := pkg.GetMongoContext("quotations")
+	var res models.Quotation
+	err := collection.FindOne(mongoCtx, bson.M{"_id": tools.ObjectID(c.Param("id"))}).Decode(&res)
+	if err != nil && err != mongo.ErrNoDocuments {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "msg": "（-1）内部错误"})
+		log.Println(err)
+		return
+	}
+	if err == mongo.ErrNoDocuments {
+		c.JSON(http.StatusNotFound, struct{}{})
+	} else {
+		c.JSON(http.StatusOK, res)
+	}
+}
 func GetMyQuotation(c *gin.Context) {
 	o, _ := c.Get(middlewares.IdentityKey)
 	userId := o.(*models.User).ID

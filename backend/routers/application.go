@@ -49,7 +49,6 @@ func CreateApplication(c *gin.Context) {
 
 	mongoCtx, collection = pkg.GetMongoContext("applications")
 	user.Password = ""
-	user.Username = ""
 	_, err = collection.InsertOne(mongoCtx, bson.M{
 		"applicant":          user,
 		"quotationId":        quotation.ID,
