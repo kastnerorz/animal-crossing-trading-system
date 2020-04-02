@@ -97,7 +97,7 @@ func GetUser(c *gin.Context) {
 		log.Println(err)
 		return
 	}
-	if res.ID == "" {
+	if err == mongo.ErrNoDocuments {
 		c.JSON(http.StatusNotFound, struct{}{})
 	} else {
 		c.JSON(http.StatusOK, res)

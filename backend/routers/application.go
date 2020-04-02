@@ -34,10 +34,9 @@ func CreateApplication(c *gin.Context) {
 
 	mongoCtx, collection := pkg.GetMongoContext("quotations")
 	var quotation models.Quotation
-	objectId, _ := primitive.ObjectIDFromHex(applicationParam.QuotationId)
-	err = collection.FindOne(mongoCtx, bson.M{"_id": objectId}).Decode(&quotation)
+	err = collection.FindOne(mongoCtx, bson.M{"_id": tools.ObjectID(applicationParam.QuotationId)}).Decode(&quotation)
 	if err != nil && err != mongo.ErrNoDocuments {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "msg": "（-1）内部错误"})
+		c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "msg": "（-2）内部错误", "err": err})
 		log.Println(err)
 		return
 	}
@@ -51,14 +50,12 @@ func CreateApplication(c *gin.Context) {
 	mongoCtx, collection = pkg.GetMongoContext("applications")
 	user.Password = ""
 	user.Username = ""
-	quotationId, _ := primitive.ObjectIDFromHex(quotation.ID)
-	reviewerId, _ := primitive.ObjectIDFromHex(quotation.Author.ID)
 	_, err = collection.InsertOne(mongoCtx, bson.M{
 		"applicant":          user,
-		"quotationId":        quotationId,
+		"quotationId":        tools.ObjectID(quotation.ID),
 		"quotationType":      quotation.OpenType,
 		"reviewerNickname":   quotation.Author.Nickname,
-		"reviewerId":         reviewerId,
+		"reviewerId":         quotation.Author.ID,
 		"status":             "PENDING",
 		"lastModified":       time.Now(),
 		"passCode":           "",
@@ -83,7 +80,7 @@ func GetMyApplications(c *gin.Context) {
 			return
 		}
 		if applicationType == "REVIEW" {
-			filter["reviewerId"], _ = primitive.ObjectIDFromHex(user.ID)
+			filter["reviewerId"] = user.ID
 		} else if applicationType == "APPLY" {
 			filter["applicant._id"] = user.ID
 		}
@@ -143,7 +140,7 @@ func UpdateApplication(c *gin.Context) {
 		return
 	}
 
-	if user.ID != application.ReviewerId.Hex() {
+	if user.ID.Hex() != application.ReviewerId.Hex() {
 		c.JSON(http.StatusForbidden, gin.H{"code": -2, "msg": "无权限！"})
 		log.Println(err)
 		return

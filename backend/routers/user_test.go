@@ -40,7 +40,7 @@ func TestGetUser(t *testing.T) {
 	var user models.User
 	err := json.Unmarshal([]byte(r.Body.String()), &user)
 	assert.Nil(t, err)
-	assert.Equal(t, userId, user.ID)
+	assert.Equal(t, userId, user.ID.Hex())
 	assert.Equal(t, "zed2", user.Username)
 	assert.Equal(t, "张豆", user.Nickname)
 

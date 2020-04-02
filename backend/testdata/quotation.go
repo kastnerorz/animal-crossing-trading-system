@@ -15,7 +15,7 @@ func TestQuotations() []interface{} {
 			"type":  "SELL",
 			"price": 40,
 			"author": bson.M{
-				"_id":      "5e82ffb52fc4557c9d343b46",
+				"_id":      tools.ObjectID(ReviewerID),
 				"nickname": "张豆",
 				"jikeId":   "张豆",
 			},
@@ -30,7 +30,7 @@ func TestQuotations() []interface{} {
 			"type":  "SELL",
 			"price": 40,
 			"author": bson.M{
-				"_id":      "5e82ffb52fc4557c9d343b46",
+				"_id":      tools.ObjectID(ReviewerID),
 				"nickname": "张豆",
 				"jikeId":   "张豆",
 			},
