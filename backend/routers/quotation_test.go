@@ -53,7 +53,7 @@ func TestUpdateQuotation(t *testing.T) {
 }
 
 func TestGetMyQuotation(t *testing.T) {
-	r := PerformRequestWithAuth("GET", "/api/v1/my-quotations", nil, ReviewerToken)
+	r := PerformRequestWithAuth("GET", "/api/v1/my-quotations?type=SELL", nil, ReviewerToken)
 	assert.Equal(t, http.StatusOK, r.Code)
 
 	var quotations []models.Quotation

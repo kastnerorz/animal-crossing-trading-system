@@ -145,10 +145,19 @@ func GetQuotation(c *gin.Context) {
 	}
 }
 func GetMyQuotation(c *gin.Context) {
-	o, _ := c.Get(middlewares.IdentityKey)
-	userId := o.(*models.User).ID
+	user := tools.GetUserFromContext(c)
+	quotationType := c.Query("type")
 	filter := bson.M{
-		"author._id": userId,
+		"author._id": user.ID,
+	}
+
+	if quotationType != "" {
+		if _, ok := models.QuotationType[quotationType]; !ok {
+			c.JSON(http.StatusOK, []struct{}{})
+			return
+		}
+
+		filter["type"] = quotationType
 	}
 
 	lowerBound, upperBound := tools.GetValidDateLowerAndUpperBound()
