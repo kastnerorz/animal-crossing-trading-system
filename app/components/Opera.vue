@@ -26,11 +26,19 @@
             <b-field label="岛屿开放类型">
               <span class="input verified-show default-color control">{{good.openType | openTypeTranslate}}</span>
             </b-field>
-            <b-field label="有效性">
-              <span class="input verified-show"
-                :class="{ 'valid-color' : good.validCount > good.invalidCount }">{{good | verifiedTranslate}}</span>
+            <b-field label="手续费">
+              <div class="control is-clearfix">
+                <div class="input-icon">
+                  <ICON type="money" />
+                </div>
+                <input disabled class="input" v-model="good.handlingFee" />
+              </div>
             </b-field>
           </div>
+          <!-- <b-field label="有效性">
+            <span class="input verified-show"
+              :class="{ 'valid-color' : good.validCount > good.invalidCount }">{{good | verifiedTranslate}}</span>
+          </b-field> -->
           <div v-if="!good.isMine">
             <b-button class="btn-req" v-if="!isLogin" type="is-primary" @click="loginAni">登录后申请</b-button>
             <template v-else>
@@ -223,6 +231,7 @@ export default {
           sellerId: quo.author.id,
           validCount: quo.validCount,
           invalidCount: quo.invalidCount,
+          handlingFee: quo.handlingFee,
           openType: quo.openType,
           isMine: isMine,
           status: "NORMAL",
