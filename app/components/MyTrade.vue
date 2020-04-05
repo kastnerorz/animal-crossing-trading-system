@@ -115,11 +115,6 @@ export default {
       return !!jsCookie.get("auth");
     },
   },
-  watch: {
-    tradeType(val) {
-      console.log('tradeType', val);
-    } 
-  },
   mounted() {
     this.checkAuth();
   },
@@ -129,8 +124,8 @@ export default {
         this.$store.commit("setLoading");
         if (!this.isLogin) {
           let meRes = await this.$axios.$get("/me");
-          this.$store.commit("closeLoading");
           this.$store.commit("setUser", meRes);
+          this.$store.commit("closeLoading");
         }
         await this.qryMyQuotation();
       }
@@ -237,13 +232,14 @@ export default {
       } else {
         await this.$axios.$post("/quotations", quoParam);
       }
-      await this.qryMyQuotation(true);
       this.$buefy.toast.open({
         duration: 3000,
         message: this.hasQuotation ? "修改成功" : "发布成功",
         position: "is-top",
         type: "is-success"
       });
+      await this.qryMyQuotation(true);
+      this.$emit('editMyApplication')
     },
     /**
      * 转去登录
