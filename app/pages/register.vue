@@ -9,18 +9,18 @@
         <b-input v-model="nickname" @blur="validateMethod('nickname')" placeholder="请输入昵称"></b-input>
       </b-field>
       <b-field label="密码">
-        <b-input v-model="password" @blur="validateMethod('password')" placeholder="请输入密码" type="password"
+        <b-input v-model="password" autocomplete="off"  @blur="validateMethod('password')" placeholder="请输入密码" type="password"
           maxlength="30"></b-input>
       </b-field>
       <b-field label="再次输入密码">
-        <b-input v-model="rePassword" @blur="validateMethod('rePassword')" placeholder="请再次输入密码" type="password"
+        <b-input v-model="rePassword" autocomplete="off"  @blur="validateMethod('rePassword')" placeholder="请再次输入密码" type="password"
           maxlength="30">
         </b-input>
       </b-field>
       <b-field label="Switch 好友编号">
         <div class="friendCode-wrap">
-          <b-input class="friendCode" @blur="validateMethod('switchFriendCode')" @input="friendCodeInput" maxlength="19"
-            v-model="switchFriendCode" placeholder="XXXX-XXXX-XXXX-XXXX"></b-input>
+          <b-input class="friendCode" @blur="validateMethod('switchFriendCode')" @input="friendCodeInput" maxlength="14"
+            v-model="switchFriendCode" placeholder="XXXX-XXXX-XXXX"></b-input>
           <span
             :class="['friendCode-wrap-title', {'friendCode-wrap-title-gray': switchFriendCode.length === 0}]">SW-</span>
         </div>

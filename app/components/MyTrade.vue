@@ -24,8 +24,8 @@
     </b-field>
     <b-field v-if="openType === 'FRIENDS'" label="Switch 好友编号">
       <div class="friendCode-wrap">
-        <b-input class="friendCode" @input="friendCodeInput" maxlength="19" v-model="switchFriendCode"
-          placeholder="XXXX-XXXX-XXXX-XXXX"></b-input>
+        <b-input class="friendCode" @input="friendCodeInput" maxlength="14" v-model="switchFriendCode"
+          placeholder="XXXX-XXXX-XXXX"></b-input>
         <span
           :class="['friendCode-wrap-title', {'friendCode-wrap-title-gray': switchFriendCode.length === 0}]">SW-</span>
       </div>

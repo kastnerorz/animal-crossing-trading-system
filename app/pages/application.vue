@@ -50,7 +50,7 @@
         <b-field v-if="gIndex === showPassIndex && reviewInfo.quotationType === 'FRIENDS'" label="Switch 好友编号">
           <div class="friendCode-wrap">
             <b-input class="friendCode" @input="friendCodeInput" maxlength="19" v-model="reviewInfo.switchFriendCode"
-              placeholder="XXXX-XXXX-XXXX-XXXX"></b-input>
+              placeholder="XXXX-XXXX-XXXX"></b-input>
             <span
               :class="['friendCode-wrap-title', {'friendCode-wrap-title-gray': reviewInfo.switchFriendCode.length === 0}]">SW-</span>
           </div>
