@@ -73,7 +73,7 @@ const validateRules = {
       message: "请输入Switch好友编号"
     },
     {
-      pattern: /([0-9]{4})-([0-9]{4})-([0-9]{4})-([0-9]{4})$/,
+      pattern: /([0-9]{4})-([0-9]{4})-([0-9]{4})$/,
       message: "Switch好友编号输入错误"
     }
   ]
