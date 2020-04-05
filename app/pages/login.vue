@@ -24,8 +24,8 @@ export default {
   mounted() {},
   data() {
     return {
-      username: "测试 1234",
-      password: "1017765582"
+      username: "",
+      password: ""
     };
   },
   methods: {
