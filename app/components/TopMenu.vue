@@ -53,7 +53,7 @@ export default {
       return !!jsCookie.get("auth");
     },
     hasNewApply() {
-      return this.$store.state.hasApplicationNew
+      return this.$store.state.hasApplicationNew && this.$route.name !== 'application'
     }
   },
   mounted() {
