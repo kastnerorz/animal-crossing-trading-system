@@ -124,3 +124,21 @@ body {
   color: #d9d6cb;
   -webkit-text-fill-color: #d9d6cb;
 }
+
+.modal .animation-content{
+  width: 80%;
+}
+
+.button.btn-req, .button.btn-req[disabled]{
+  background: $btn-clr-g;
+  height: 50px;
+  width: 100%;
+  margin-top: 8px;
+  border-radius: 11px;
+}
+.button.btn-applyed, .button.btn-applyed[disabled]{
+  background: #937BD9;
+}
+.button.btn-refused, .button.btn-refused[disabled]{
+  background: #D97B92;
+}
