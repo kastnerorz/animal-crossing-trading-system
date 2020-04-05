@@ -5,8 +5,8 @@
   "author": "Zed",
   "private": true,
   "scripts": {
-    "dev": "nuxt",
-    "build": "nuxt build",
+    "dev": "nuxt --spa",
+    "build": "nuxt build --spa",
     "start": "nuxt start",
     "generate": "nuxt generate",
     "test": "ava",
