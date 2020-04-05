@@ -49,7 +49,7 @@ export default {
       setTimeout(() => {
         this.$store.commit("setUser", getMe);
         const cDate = new Date();
-        cDate.setDate(cDate.getDate() + 2);
+        // cDate.setDate(cDate.getDate() + 2);
         const cDay = cDate.getDay();
         const cHour = cDate.getHours();
         if (cDay !== 0) {
