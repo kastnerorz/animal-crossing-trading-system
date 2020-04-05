@@ -57,6 +57,10 @@ func CreateApplication(c *gin.Context) {
 		log.Println(err)
 		return
 	}
+	if quotation.Author.ID.Hex() == user.ID.Hex() {
+		c.JSON(http.StatusBadRequest, gin.H{"code": -6, "msg": "不用申请自己的报价哦！"})
+		return
+	}
 
 	mongoCtx, collection = pkg.GetMongoContext("applications")
 	user.Password = ""
@@ -72,7 +76,7 @@ func CreateApplication(c *gin.Context) {
 		"switchFriendNumber": "",
 	})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": -6, "msg": "（-3）内部错误"})
+		c.JSON(http.StatusInternalServerError, gin.H{"code": -7, "msg": "（-3）内部错误"})
 		log.Println(err)
 		return
 	}
