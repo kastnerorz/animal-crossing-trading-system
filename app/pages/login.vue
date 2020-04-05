@@ -49,17 +49,13 @@ export default {
       setTimeout(() => {
         this.$store.commit("setUser", getMe);
         const cDate = new Date();
-        // cDate.setDate(cDate.getDate()+2);
+        cDate.setDate(cDate.getDate() + 2);
         const cDay = cDate.getDay();
         const cHour = cDate.getHours();
-        if (cDay === 0) {
-          this.$router.push("/");
+        if (cDay !== 0) {
+          this.$router.push("/sell");
         } else {
-          if (cHour < 12) {
-            this.$router.push("/sell");
-          } else {
-            this.$router.push("/");
-          }
+          this.$router.push("/");
         }
       }, 2000);
     },
