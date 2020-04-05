@@ -4,7 +4,7 @@
     <div class="item-container">
       <section>
         <p class="section-title">我的报价</p>
-        <MyTrade :tradeType="operaType"></MyTrade>
+        <MyTrade :tradeType="operaType" @editMyApplication="refreshQuotas"></MyTrade>
       </section>
       <section>
         <p class="section-title">{{operaTypeText}}大厅</p>
@@ -36,9 +36,11 @@
             <template v-else>
               <b-button class="btn-req" v-if="good.status === 'NORMAL'" type="is-primary"
                 @click="requestApplications(good.id, gIndex)">{{good.status | applyBtnTextTranslate}}</b-button>
-              <b-button class="btn-req btn-applyed" v-if="good.status === 'PENDING'" type="is-primary">
+              <b-button class="btn-req btn-applyed" disabled v-if="good.status === 'PENDING'" type="is-primary">
                 {{good.status | applyBtnTextTranslate}}</b-button>
-              <b-button class="btn-req btn-refused" v-if="good.status === 'REJECT'" type="is-primary">
+              <b-button class="btn-req btn-refused" disabled v-if="good.status === 'REJECT'" type="is-primary">
+                {{good.status | applyBtnTextTranslate}}</b-button>
+              <b-button class="btn-req" disabled v-if="good.status === 'ACCEPT'" type="is-primary">
                 {{good.status | applyBtnTextTranslate}}</b-button>
             </template>
           </div>
@@ -64,12 +66,13 @@ export default {
   props: {
     operaType: {
       type: String,
-      default: 'SELL'
+      default: "SELL"
     }
   },
   components: { TopMenu, ICON, MyTrade },
   data() {
     return {
+      timer: null,
       isLoading: true,
       loadTextClock: 0,
       loadTextTimer: null,
@@ -88,7 +91,7 @@ export default {
       return this.operaType.toLowerCase();
     },
     operaTypeText() {
-      return this.operaType === 'SELL' ? '买入' : '卖出';
+      return this.operaType === "SELL" ? "买入" : "卖出";
     },
     isLogin() {
       return !!this.$store.state.user.id;
@@ -114,10 +117,13 @@ export default {
           btnText = "申请";
           break;
         case "PENDING":
-          btnText = "已申请";
+          btnText = "等待同意";
           break;
         case "REJECT":
           btnText = "被拒绝";
+          break;
+        case "ACCEPT":
+          btnText = "已同意";
           break;
         default:
           btnText = "申请";
@@ -127,6 +133,7 @@ export default {
     }
   },
   beforeDestroy() {
+    clearInterval(this.timer);
     clearInterval(this.loadTextTimer);
     this.loadTextClock = 0;
   },
@@ -169,12 +176,19 @@ export default {
     this.checkAuth();
   },
   methods: {
+    /**
+     * 获取我的申请
+     */
     async checkAuth() {
       // this.$store.commit("setLoading");
       const user = this.$store.state.user;
       const auth = jsCookie.get("auth");
       if (!!auth) {
         await this.getMyApplications();
+        this.getApplicationCountQuiet();
+        this.timer = setInterval(() => {
+          this.getApplicationCountQuiet();
+        }, 60000);
       }
       if (!user.username && !!auth) {
         let res = await this.$axios.$get("/me");
@@ -182,10 +196,22 @@ export default {
       }
       await this.qryQuotations();
     },
+    /**
+     * 刷新报价
+     */
+    async refreshQuotas() {
+      this.goodsList = [];
+      this.isLoading = true;
+      this.$store.commit("setLoading");
+      await this.qryQuotations();
+      this.$store.commit("closeLoading");
+    },
+    /**
+     * 查询报价
+     */
     async qryQuotations() {
       let res = await this.$axios.$get(`/quotations?type=${this.operaType}`);
       this.isLoading = false;
-      // this.$store.commit("closeLoading");
       let goodsList = res.map(quo => {
         const isMine = this.isLogin
           ? quo.author.id === this.$store.state.user.id
@@ -199,6 +225,7 @@ export default {
           invalidCount: quo.invalidCount,
           openType: quo.openType,
           isMine: isMine,
+          status: "NORMAL",
           lastModified: quo.lastModified
         };
       });
@@ -208,12 +235,16 @@ export default {
         );
         if (cGood) {
           goods.status = cGood.status;
-        } else {
-          goods.status = "NORMAL";
         }
       });
       this.goodsList = goodsList;
+      // this.goodsList = [...this.goodsList, ...goodsList];
     },
+    /**
+     * 修改申请
+     * @param String qId 报价id
+     * @param Number gIndex 报价序号
+     */
     async requestApplications(qId, gIndex) {
       const reqData = {
         QuotationId: qId
@@ -224,13 +255,16 @@ export default {
       this.$set(this.goodsList[gIndex], "status", "PENDING");
       this.$buefy.toast.open({
         duration: 2000,
-        message: "申请成功",
+        message: "已同意",
         position: "is-top",
         type: "is-success"
       });
     },
+    /**
+     * 查询我的申请，比对后修改报价状态
+     */
     async getMyApplications() {
-      let trade = await this.$axios.$get("/applications"); // ?type=APPLY
+      let trade = await this.$axios.$get(`/applications?type=APPLY`); // ?type=APPLY
       this.applicationList = trade.map(tra => {
         return {
           id: tra.id,
@@ -239,6 +273,10 @@ export default {
         };
       });
     },
+    /**
+     * 生成按钮文字
+     * @param String qId 报价id
+     */
     genereateBtnTxt(qId) {
       if (this.applicationList.length === 0) {
         return "申请";
@@ -254,6 +292,14 @@ export default {
       } else {
         return "申请";
       }
+    },
+    /**
+     * 静默查询申请更新
+     */
+    async getApplicationCountQuiet() {
+      const reveiwList = await this.$axios.$get("/applications?type=REVIEW");
+      const hasPending = reveiwList.find(el => el.status === "PENDING");
+      this.$store.commit("setHasApplicationNew", hasPending);
     },
     /**
      * 转去登录

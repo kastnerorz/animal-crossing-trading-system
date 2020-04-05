@@ -7,8 +7,9 @@ const store = () =>
   new Vuex.Store({
     state: {
       loadingComponent: "",
+      hasApplicationNew: false,
       user: {},
-      quotation: {}
+      quotation: {},
     },
     mutations: {
       setUser(state, user) {
@@ -16,6 +17,9 @@ const store = () =>
       },
       setQuotation(state, quotation) {
         state.quotation = quotation;
+      },
+      setHasApplicationNew(state, hasApplicationNew) {
+        state.hasApplicationNew = hasApplicationNew;
       },
       setLoading(state) {
         if (typeof state.loadingComponent === "string") {
@@ -27,8 +31,8 @@ const store = () =>
           state.loadingComponent.close();
           state.loadingComponent = "";
         }
-      }
-    }
+      },
+    },
   });
 
 export default store;
