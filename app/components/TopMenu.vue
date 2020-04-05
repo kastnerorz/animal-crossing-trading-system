@@ -62,9 +62,9 @@ export default {
   methods: {
     calcDayLinkShow() {
       const cDate = new Date();
-      if (process.env.NODE_ENV === "development") {
-        cDate.setDate(cDate.getDate() + 2);
-      }
+      // if (process.env.NODE_ENV === "development") {
+      //   cDate.setDate(cDate.getDate() + 2);
+      // }
       const cDay = cDate.getDay();
       const cHour = cDate.getHours();
       if (cDay !== 0) {
