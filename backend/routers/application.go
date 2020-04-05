@@ -27,22 +27,33 @@ func CreateApplication(c *gin.Context) {
 	}
 
 	if applicationParam.QuotationId == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"code": -1, "msg": "报价ID不能为空！"})
+		c.JSON(http.StatusBadRequest, gin.H{"code": -2, "msg": "报价ID不能为空！"})
 		log.Println(err)
 		return
 	}
 
-	mongoCtx, collection := pkg.GetMongoContext("quotations")
+	mongoCtx, collection := pkg.GetMongoContext("applications")
+	pendingCount, err := collection.CountDocuments(mongoCtx, bson.M{
+		"applicant._id": user.ID,
+		"quotationId":   tools.ObjectID(applicationParam.QuotationId),
+		"status":        "PENDING"})
+	if pendingCount > 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"code": -3, "msg": "同一报价只能同时提交1个申请！"})
+		log.Println(err)
+		return
+	}
+
+	mongoCtx, collection = pkg.GetMongoContext("quotations")
 	var quotation models.Quotation
 	err = collection.FindOne(mongoCtx, bson.M{"_id": tools.ObjectID(applicationParam.QuotationId)}).Decode(&quotation)
 	if err != nil && err != mongo.ErrNoDocuments {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "msg": "（-2）内部错误", "err": err})
+		c.JSON(http.StatusInternalServerError, gin.H{"code": -4, "msg": "（-2）内部错误", "err": err})
 		log.Println(err)
 		return
 	}
 
 	if err == mongo.ErrNoDocuments {
-		c.JSON(http.StatusBadRequest, gin.H{"code": -1, "msg": "报价不存在！"})
+		c.JSON(http.StatusBadRequest, gin.H{"code": -5, "msg": "报价不存在！"})
 		log.Println(err)
 		return
 	}
@@ -61,7 +72,7 @@ func CreateApplication(c *gin.Context) {
 		"switchFriendNumber": "",
 	})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": -3, "msg": "（-3）内部错误"})
+		c.JSON(http.StatusInternalServerError, gin.H{"code": -6, "msg": "（-3）内部错误"})
 		log.Println(err)
 		return
 	}

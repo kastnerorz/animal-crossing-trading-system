@@ -53,7 +53,7 @@ func TestUpdateQuotation(t *testing.T) {
 }
 
 func TestGetMyQuotation(t *testing.T) {
-	r := PerformRequestWithAuth("GET", "/api/v1/my-quotations", nil, ReviewerToken)
+	r := PerformRequestWithAuth("GET", "/api/v1/my-quotations?type=SELL", nil, ReviewerToken)
 	assert.Equal(t, http.StatusOK, r.Code)
 
 	var quotations []models.Quotation
@@ -63,6 +63,11 @@ func TestGetMyQuotation(t *testing.T) {
 	assert.Equal(t, 90, quotation.Price)
 	assert.Equal(t, "FRIENDS", quotation.OpenType)
 	assert.Equal(t, 0, quotation.HandlingFee)
+}
+
+func TestDeleteQuotation(t *testing.T) {
+	r := PerformRequestWithAuth("DELETE", "/api/v1/quotations/"+quotationId, nil, ReviewerToken)
+	assert.Equal(t, http.StatusOK, r.Code)
 }
 
 func TestCreateQuotationPassCode(t *testing.T) {
@@ -82,9 +87,4 @@ func TestGetMyQuotationPassCode(t *testing.T) {
 	assert.Equal(t, 40, quotation.Price)
 	assert.Equal(t, "PASS_CODE", quotation.OpenType)
 	assert.Equal(t, 100000, quotation.HandlingFee)
-}
-
-func TestDeleteQuotation(t *testing.T) {
-	r := PerformRequestWithAuth("DELETE", "/api/v1/quotations/"+quotationId, nil, ReviewerToken)
-	assert.Equal(t, http.StatusOK, r.Code)
 }

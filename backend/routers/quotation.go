@@ -16,8 +16,7 @@ import (
 )
 
 func CreateQuotation(c *gin.Context) {
-	o, _ := c.Get(middlewares.IdentityKey)
-	user := o.(*models.User)
+	user := tools.GetUserFromContext(c)
 
 	var quotation models.Quotation
 	err := c.BindJSON(&quotation)
@@ -42,7 +41,25 @@ func CreateQuotation(c *gin.Context) {
 		return
 	}
 
+	filter := bson.M{}
+
+	lowerBound, upperBound := tools.GetValidDateLowerAndUpperBound()
+	filter["lastModified"] = bson.M{
+		"$gt":  lowerBound,
+		"$lte": upperBound,
+	}
+
+	filter["author._id"] = user.ID
+
 	mongoCtx, collection := pkg.GetMongoContext("quotations")
+	count, err := collection.CountDocuments(mongoCtx, filter)
+	if count > 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"code": -3, "msg": "半（自然）天只能发布一次报价，请在下个变化周期内发布！"})
+		log.Println(err)
+		return
+	}
+
+	mongoCtx, collection = pkg.GetMongoContext("quotations")
 	user.Password = ""
 	user.SwitchFriendCode = ""
 	_, err = collection.InsertOne(mongoCtx, bson.M{
@@ -145,10 +162,19 @@ func GetQuotation(c *gin.Context) {
 	}
 }
 func GetMyQuotation(c *gin.Context) {
-	o, _ := c.Get(middlewares.IdentityKey)
-	userId := o.(*models.User).ID
+	user := tools.GetUserFromContext(c)
+	quotationType := c.Query("type")
 	filter := bson.M{
-		"author._id": userId,
+		"author._id": user.ID,
+	}
+
+	if quotationType != "" {
+		if _, ok := models.QuotationType[quotationType]; !ok {
+			c.JSON(http.StatusOK, []struct{}{})
+			return
+		}
+
+		filter["type"] = quotationType
 	}
 
 	lowerBound, upperBound := tools.GetValidDateLowerAndUpperBound()
