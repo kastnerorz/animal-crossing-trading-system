@@ -2,11 +2,11 @@
   <div class="reg-page">
     <TopMenu opt="reg" />
     <section class="form-wrapper">
-      <b-field label="用户名">
-        <b-input v-model="username" @blur="validateMethod('username')" placeholder="请输入用户名"></b-input>
-      </b-field>
       <b-field label="昵称">
         <b-input v-model="nickname" @blur="validateMethod('nickname')" placeholder="请输入昵称"></b-input>
+      </b-field>
+      <b-field label="用户名">
+        <b-input v-model="username" @blur="validateMethod('username')" placeholder="请输入用户名"></b-input>
       </b-field>
       <b-field label="密码">
         <b-input v-model="password" autocomplete="off"  @blur="validateMethod('password')" placeholder="请输入密码" type="password"
@@ -17,6 +17,9 @@
           maxlength="30">
         </b-input>
       </b-field>
+      <b-field label="Switch 好友昵称">
+        <b-input v-model="switchNickname" @blur="validateMethod('switchNickname')" placeholder="请输入你的Switch 好友昵称"></b-input>
+      </b-field>
       <b-field label="Switch 好友编号">
         <div class="friendCode-wrap">
           <b-input class="friendCode" @blur="validateMethod('switchFriendCode')" @input="friendCodeInput" maxlength="14"
@@ -25,8 +28,8 @@
             :class="['friendCode-wrap-title', {'friendCode-wrap-title-gray': switchFriendCode.length === 0}]">SW-</span>
         </div>
       </b-field>
-      <b-field label="Jellow ID">
-        <b-input v-model="jellowID" placeholder="请输入你的Jellow ID"></b-input>
+      <b-field label="即刻 ID">
+        <b-input v-model="jikeId" placeholder="请输入你的即刻 ID（选填）"></b-input>
       </b-field>
       <b-button class="btn-reg" type="is-primary" @click="validateAllData">注册</b-button>
     </section>
@@ -59,6 +62,12 @@ const validateRules = {
       type: "string",
       min: 1,
       message: "昵称太短了"
+    }
+  ],
+  switchNickname: [
+    {
+      required: true,
+      message: "请输入switch 好友昵称"
     }
   ],
   password: [
@@ -107,7 +116,9 @@ export default {
       rePassword: "",
       nickname: "",
       switchFriendCode: "",
-      jellowID: ""
+      switchNickname: "",
+      jikeName: "",
+      jikeId: ""
     };
   },
   watch: {
@@ -159,6 +170,7 @@ export default {
         nickname: validateRules.nickname,
         password: validateRules.password,
         rePassword: validateRules.rePassword,
+        switchNickname: validateRules.switchNickname,
         switchFriendCode: validateRules.switchFriendCode
       };
       let validator = new asyncValidator(rules);
@@ -168,6 +180,7 @@ export default {
           nickname: this.nickname,
           rePassword: this.rePassword,
           password: this.password,
+          switchNickname: this.switchNickname,
           switchFriendCode: this.switchFriendCode
         })
         .then(() => {
@@ -200,7 +213,8 @@ export default {
         username: this.username,
         password: hash.hex(),
         nickname: this.nickname,
-        jellowID: this.jellowID || "",
+        jikeId: this.jikeId || "",
+        switchNickname: this.switchNickname || "",
         switchFriendCode: "SW-" + this.switchFriendCode
       };
       const user = await this.$axios.$post("/users", userInfo);
