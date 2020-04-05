@@ -65,6 +65,11 @@ func TestGetMyQuotation(t *testing.T) {
 	assert.Equal(t, 0, quotation.HandlingFee)
 }
 
+func TestDeleteQuotation(t *testing.T) {
+	r := PerformRequestWithAuth("DELETE", "/api/v1/quotations/"+quotationId, nil, ReviewerToken)
+	assert.Equal(t, http.StatusOK, r.Code)
+}
+
 func TestCreateQuotationPassCode(t *testing.T) {
 	body := []byte(`{"type":"SELL","price":40,"openType":"PASS_CODE","passCode":"56HMS","handlingFee":100000}`)
 	r := PerformRequestWithAuth("POST", "/api/v1/quotations", bytes.NewBuffer(body), ReviewerToken)
@@ -82,9 +87,4 @@ func TestGetMyQuotationPassCode(t *testing.T) {
 	assert.Equal(t, 40, quotation.Price)
 	assert.Equal(t, "PASS_CODE", quotation.OpenType)
 	assert.Equal(t, 100000, quotation.HandlingFee)
-}
-
-func TestDeleteQuotation(t *testing.T) {
-	r := PerformRequestWithAuth("DELETE", "/api/v1/quotations/"+quotationId, nil, ReviewerToken)
-	assert.Equal(t, http.StatusOK, r.Code)
 }
