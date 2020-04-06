@@ -8,15 +8,28 @@
           <b-field label="昵称">
             <span class="input verified-show default-color control">{{applyInfo.nickName}}</span>
           </b-field>
+          <b-field label="报价">
+            <div class="control is-clearfix">
+              <div class="input-icon">
+                <ICON type="money" />
+              </div>
+              <input disabled class="input" v-model="applyInfo.price" />
+            </div>
+          </b-field>
+        </div>
+        <div class="lr-block" v-if="applyInfo.status === 'ACCEPT' && applyInfo.quotationType === 'PASS_CODE'">
           <b-field label="岛屿开放类型">
             <span
               class="input verified-show default-color control">{{applyInfo.quotationType | openTypeTranslate}}</span>
           </b-field>
+          <b-field label="岛屿密码">
+            <div class="control is-clearfix">
+              <span class="input verified-show default-color control">{{applyInfo.passCode}}</span>
+            </div>
+          </b-field>
         </div>
-        <b-field label="岛屿密码" v-if="applyInfo.status === 'ACCEPT' && applyInfo.quotationType === 'PASS_CODE'">
-          <div class="control is-clearfix">
-            <span class="input verified-show default-color control">{{applyInfo.passCode}}</span>
-          </div>
+        <b-field v-else label="岛屿开放类型">
+          <span class="input verified-show default-color control">{{applyInfo.quotationType | openTypeTranslate}}</span>
         </b-field>
         <b-field v-if="applyInfo.status === 'ACCEPT' && applyInfo.quotationType === 'FRIENDS'" label="Switch 好友编号">
           <div class="friendCode-wrap">
@@ -33,7 +46,7 @@
         </div>
       </div>
       <div class="application-form" v-if="applyList.length === 0">
-        {{isLoading ? loadingText : '没有收到申请'}}
+        {{isLoading ? loadingText : '还没有发出申请'}}
       </div>
     </section>
     <section>
@@ -42,10 +55,8 @@
         <b-field label="昵称">
           <span class="input verified-show default-color control">{{reviewInfo.nickName}}</span>
         </b-field>
-        <b-field label="岛屿密码" v-if="gIndex === showPassIndex && reviewInfo.quotationType === 'PASS_CODE'">
-          <div class="control is-clearfix">
-            <input class="input" placeholder="请输入岛屿密码" v-model="reviewInfo.passCode" />
-          </div>
+        <b-field label="Switch 好友昵称" v-show="reviewInfo.switchNickname.length > 0">
+          <span class="input verified-show default-color control">{{reviewInfo.switchNickname}}</span>
         </b-field>
         <b-field v-if="gIndex === showPassIndex && reviewInfo.quotationType === 'FRIENDS'" label="Switch 好友编号">
           <div class="friendCode-wrap">
@@ -55,8 +66,20 @@
               :class="['friendCode-wrap-title', {'friendCode-wrap-title-gray': reviewInfo.switchFriendCode.length === 0}]">SW-</span>
           </div>
         </b-field>
+        <b-field label="即刻ID" v-show="reviewInfo.jikeId.length > 0">
+          <span class="input verified-show default-color control">{{reviewInfo.jikeId}}</span>
+        </b-field>
+        <b-field label="岛屿密码" v-if="gIndex === showPassIndex && reviewInfo.quotationType === 'PASS_CODE'">
+          <div class="control is-clearfix">
+            <input class="input" placeholder="请输入岛屿密码" v-model="reviewInfo.passCode" />
+          </div>
+        </b-field>
         <div class="opera-btn-wrap" v-if="reviewInfo.status === 'PENDING'">
-          <b-button class="btn-req btn-refused" @click="operaMyApplication(reviewInfo, 'REJECT')" type="is-primary">
+          <b-button class="btn-req btn-refused" v-if="gIndex === showPassIndex" @click="showPassIndex = -1"
+            type="is-primary">
+            取消</b-button>
+          <b-button class="btn-req btn-refused" v-else @click="operaMyApplication(reviewInfo, 'REJECT')"
+            type="is-primary">
             拒绝</b-button>
           <b-button class="btn-req" v-if="gIndex === showPassIndex"
             @click="updateMyApplication(reviewInfo, 'ACCEPT', gIndex)" type="is-primary">
@@ -193,11 +216,13 @@ export default {
           this.applyList = applications[0].map(apply => {
             return {
               id: apply.id,
+              price: apply.price || 0,
               status: apply.status,
               quotationType: apply.quotationType,
               applyId: apply.reviewerId,
               passCode: apply.passCode,
               nickName: apply.reviewerNickname,
+              switchNickname: apply.applicant.switchNickname || "",
               switchFriendCode: apply.applicant.switchFriendCode
             };
           });
@@ -205,15 +230,18 @@ export default {
             el => el.status === "PENDING"
           );
           this.$store.commit("setHasApplicationNew", hasPending);
-          this.reviewList = applications[1].map(apply => {
+          this.reviewList = applications[1].map(review => {
             return {
-              id: apply.id,
-              status: apply.status,
-              quotationType: apply.quotationType,
-              applyId: apply.applicant.id,
+              id: review.id,
+              price: review.price || 0,
+              status: review.status,
+              quotationType: review.quotationType,
+              applyId: review.applicant.id,
               passCode: this.passCode,
-              nickName: apply.applicant.nickname,
-              switchFriendCode: apply.applicant.switchFriendCode
+              nickName: review.applicant.nickname,
+              jikeId: review.applicant.jikeId || "",
+              switchNickname: review.applicant.switchNickname || "",
+              switchFriendCode: review.applicant.switchFriendCode
             };
           });
         }
@@ -292,6 +320,12 @@ export default {
     position: relative;
     margin-top: 1rem;
     padding-top: 2rem;
+    .input-icon + input {
+      padding-left: 32px;
+    }
+    .input-icon + input[disabled] {
+      background-color: #fffcf5;
+    }
   }
   .opera-btn {
     button {

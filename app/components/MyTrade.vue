@@ -17,17 +17,32 @@
         </b-select>
       </b-field>
     </div>
-    <b-field label="岛屿密码" v-if="openType === 'PASS_CODE'">
-      <div class="control is-clearfix">
-        <input class="input" placeholder="请输入岛屿密码" v-model="passCode" />
-      </div>
-    </b-field>
+    <div class="lr-block" v-if="openType === 'PASS_CODE'">
+      <b-field label="手续费">
+        <div class="control is-clearfix">
+          <div class="input-icon">
+            <ICON type="money" />
+          </div>
+          <input class="input" placeholder="请输入岛屿手续费(选填)" v-model="handlingFee" />
+        </div>
+      </b-field>
+      <b-field label="岛屿密码">
+        <div class="control is-clearfix">
+          <input class="input" placeholder="请输入岛屿密码" v-model="passCode" />
+        </div>
+      </b-field>
+    </div>
     <b-field v-if="openType === 'FRIENDS'" label="Switch 好友编号">
       <div class="friendCode-wrap">
         <b-input class="friendCode" @input="friendCodeInput" maxlength="14" v-model="switchFriendCode"
           placeholder="XXXX-XXXX-XXXX"></b-input>
         <span
           :class="['friendCode-wrap-title', {'friendCode-wrap-title-gray': switchFriendCode.length === 0}]">SW-</span>
+      </div>
+    </b-field>
+    <b-field v-if="openType === 'FRIENDS'" label="手续费">
+      <div class="control is-clearfix">
+        <input class="input" placeholder="请输入岛屿手续费(选填)" v-model="handlingFee" />
       </div>
     </b-field>
     <b-button v-if="isAuth" class="btn-reg" type="is-primary" @click="validateAllData">{{hasQuotation ? '修改' : '发布'}}
@@ -103,6 +118,7 @@ export default {
       price: "",
       verified: false,
       passCode: "",
+      handlingFee: "",
       switchFriendCode: "",
       hasQuotation: false
     };
@@ -113,7 +129,7 @@ export default {
     },
     isAuth() {
       return !!jsCookie.get("auth");
-    },
+    }
   },
   mounted() {
     this.checkAuth();
@@ -186,14 +202,17 @@ export default {
     async qryMyQuotation(force) {
       const switchFriendCode = this.$store.state.user.switchFriendCode || "";
       this.$store.commit("setLoading");
-      let myQuo = await this.$axios.$get(`/my-quotations?type=${this.tradeType}`);
+      let myQuo = await this.$axios.$get(
+        `/my-quotations?type=${this.tradeType}`
+      );
       this.$store.commit("closeLoading");
       if (myQuo && myQuo.length) {
-        this.hasQuotation = true
+        this.hasQuotation = true;
         this.quoId = myQuo[0].id || "";
         this.price = myQuo[0].price || "";
         this.openType = myQuo[0].openType || "";
         this.passCode = myQuo[0].passCode || "";
+        this.handlingFee = myQuo[0].handlingFee || "";
         this.switchFriendCode = switchFriendCode
           ? switchFriendCode.substring(3)
           : "";
@@ -215,7 +234,7 @@ export default {
       this.$store.commit("setLoading");
       const quoParam = {
         type: this.tradeType,
-        handlingFee: 10000,
+        handlingFee: this.handlingFee || 0,
         price: this.price,
         openType: this.openType,
         passCode: this.passCode
@@ -239,7 +258,7 @@ export default {
         type: "is-success"
       });
       await this.qryMyQuotation(true);
-      this.$emit('editMyApplication')
+      this.$emit("editMyApplication");
     },
     /**
      * 转去登录

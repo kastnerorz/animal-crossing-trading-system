@@ -19,7 +19,7 @@ export default {
     restRes() {
       const cDate = new Date();
       if (process.env.NODE_ENV === "development") {
-        cDate.setDate(cDate.getDate() + 2);
+        // cDate.setDate(cDate.getDate() + 2);
       }
       const cDay = cDate.getDay();
       const cHour = cDate.getHours();
