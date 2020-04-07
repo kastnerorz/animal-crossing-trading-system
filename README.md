@@ -5,5 +5,7 @@
 ![Docker Image Version (latest semver)](https://img.shields.io/docker/v/kastnerorz/animal-crossing-trading-system?sort=semver&logo=docker)
 ![Docker Pulls](https://img.shields.io/docker/pulls/kastnerorz/animal-crossing-trading-system?logo=docker)
 
-## Api Doc
+## API Doc
 Please go to [wiki](https://github.com/kastnerorz/animal-crossing-trading-system/wiki).
+
+## Contributors
