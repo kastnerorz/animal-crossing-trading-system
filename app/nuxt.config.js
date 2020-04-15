@@ -56,6 +56,7 @@ export default {
    */
   axios: {
     baseURL: 'https://api.kastner.cn/dtc/api/v1',
+    // baseURL: 'https://api.dtc.zedis.me/api/v1',
   },
   /*
    ** Build configuration
