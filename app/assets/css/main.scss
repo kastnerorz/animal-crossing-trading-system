@@ -159,7 +159,7 @@ button {
   cursor: pointer;
   transition: var(--anim-ease-s);
   outline: none;
-  &:hover {
+  &:not([disabled]):hover {
     transform: translateY(2px) scale(1.03);
   }
   &:active {

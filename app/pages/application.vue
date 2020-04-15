@@ -1,9 +1,17 @@
 <template>
   <div class="application">
+    <Dialog ref="dialog" class="recall-dlg">
+      <h1>确定撤回吗？</h1>
+      <button class="btn-confirm" @click="withdrawApplication">撤回</button>
+    </Dialog>
     <TopMenu opt="application" />
     <section class="application-send">
       <p class="section-title">我发出的申请</p>
-      <div v-for="(applyInfo, gIndex) in applyList" :key="gIndex" class="form-wrapper buy-wrapper info-item">
+      <div
+        v-for="(applyInfo, gIndex) in applyList"
+        :key="gIndex"
+        class="form-wrapper buy-wrapper info-item"
+      >
         <div class="lr-block">
           <b-field label="昵称">
             <span class="input verified-show default-color control">{{applyInfo.nickName}}</span>
@@ -17,10 +25,14 @@
             </div>
           </b-field>
         </div>
-        <div class="lr-block" v-if="applyInfo.status === 'ACCEPT' && applyInfo.quotationType === 'PASS_CODE'">
+        <div
+          class="lr-block"
+          v-if="applyInfo.status === 'ACCEPT' && applyInfo.quotationType === 'PASS_CODE'"
+        >
           <b-field label="岛屿开放类型">
             <span
-              class="input verified-show default-color control">{{applyInfo.quotationType | openTypeTranslate}}</span>
+              class="input verified-show default-color control"
+            >{{applyInfo.quotationType | openTypeTranslate}}</span>
           </b-field>
           <b-field label="岛屿密码">
             <div class="control is-clearfix">
@@ -29,77 +41,128 @@
           </b-field>
         </div>
         <b-field v-else label="岛屿开放类型">
-          <span class="input verified-show default-color control">{{applyInfo.quotationType | openTypeTranslate}}</span>
+          <span
+            class="input verified-show default-color control"
+          >{{applyInfo.quotationType | openTypeTranslate}}</span>
         </b-field>
-        <b-field v-if="applyInfo.status === 'ACCEPT' && applyInfo.quotationType === 'FRIENDS'" label="Switch 好友编号">
+        <b-field
+          v-if="applyInfo.status === 'ACCEPT' && applyInfo.quotationType === 'FRIENDS'"
+          label="Switch 好友编号"
+        >
           <div class="friendCode-wrap">
             <span class="input verified-show default-color control">{{applyInfo.switchFriendCode}}</span>
           </div>
         </b-field>
         <div :class="['opera-btn-wrap', {'opera-btn': applyInfo.status !== 'PENDING'}]">
-          <b-button class="btn-req" disabled v-if="applyInfo.status === 'ACCEPT'" type="is-primary">
-            {{applyInfo.status | applyBtnTextTranslate}}</b-button>
-          <b-button class="btn-req btn-refused" disabled v-if="applyInfo.status === 'REJECT'" type="is-primary">
-            {{applyInfo.status | applyBtnTextTranslate}}</b-button>
-          <b-button class="btn-req btn-refused" @click="withdrawApplication(applyInfo.id)" v-if="applyInfo.status === 'PENDING'" type="is-primary">撤回</b-button>
-          <b-button class="btn-req btn-applyed" disabled v-if="applyInfo.status === 'PENDING'" type="is-primary">
-            {{applyInfo.status | applyBtnTextTranslate}}</b-button>
+          <b-button
+            class="btn-req"
+            disabled
+            v-if="applyInfo.status === 'ACCEPT'"
+            type="is-primary"
+          >{{applyInfo.status | applyBtnTextTranslate}}</b-button>
+          <b-button
+            class="btn-req btn-refused"
+            disabled
+            v-if="applyInfo.status === 'REJECT'"
+            type="is-primary"
+          >{{applyInfo.status | applyBtnTextTranslate}}</b-button>
+          <b-button
+            class="btn-req btn-refused"
+            @click="showDlg"
+            v-if="applyInfo.status === 'PENDING'"
+            type="is-primary"
+          >撤回</b-button>
+          <b-button
+            class="btn-req btn-applyed"
+            disabled
+            v-if="applyInfo.status === 'PENDING'"
+            type="is-primary"
+          >{{applyInfo.status | applyBtnTextTranslate}}</b-button>
         </div>
       </div>
-      <div class="application-form" v-if="applyList.length === 0">
-        {{isLoading ? loadingText : '还没有发出申请'}}
-      </div>
+      <div
+        class="application-form"
+        v-if="applyList.length === 0"
+      >{{isLoading ? loadingText : '还没有发出申请'}}</div>
     </section>
     <section>
       <p class="section-title">我收到的申请</p>
-      <div v-for="(reviewInfo, gIndex) in reviewList" :key="gIndex" class="form-wrapper buy-wrapper info-item">
+      <div
+        v-for="(reviewInfo, gIndex) in reviewList"
+        :key="gIndex"
+        class="form-wrapper buy-wrapper info-item"
+      >
         <b-field label="昵称">
           <span class="input verified-show default-color control">{{reviewInfo.nickName}}</span>
         </b-field>
         <b-field label="Switch 好友昵称" v-show="reviewInfo.switchNickname.length > 0">
           <span class="input verified-show default-color control">{{reviewInfo.switchNickname}}</span>
         </b-field>
-        <b-field v-if="gIndex === showPassIndex && reviewInfo.quotationType === 'FRIENDS'" label="Switch 好友编号">
+        <b-field
+          v-if="gIndex === showPassIndex && reviewInfo.quotationType === 'FRIENDS'"
+          label="Switch 好友编号"
+        >
           <div class="friendCode-wrap">
-            <b-input class="friendCode" @input="friendCodeInput" maxlength="19" v-model="reviewInfo.switchFriendCode"
-              placeholder="XXXX-XXXX-XXXX"></b-input>
+            <b-input
+              class="friendCode"
+              @input="friendCodeInput"
+              maxlength="19"
+              v-model="reviewInfo.switchFriendCode"
+              placeholder="XXXX-XXXX-XXXX"
+            ></b-input>
             <span
-              :class="['friendCode-wrap-title', {'friendCode-wrap-title-gray': reviewInfo.switchFriendCode.length === 0}]">SW-</span>
+              :class="['friendCode-wrap-title', {'friendCode-wrap-title-gray': reviewInfo.switchFriendCode.length === 0}]"
+            >SW-</span>
           </div>
         </b-field>
         <b-field label="即刻ID" v-show="reviewInfo.jikeId.length > 0">
           <span class="input verified-show default-color control">{{reviewInfo.jikeId}}</span>
         </b-field>
-        <b-field label="岛屿密码" v-if="gIndex === showPassIndex && reviewInfo.quotationType === 'PASS_CODE'">
+        <b-field
+          label="岛屿密码"
+          v-if="gIndex === showPassIndex && reviewInfo.quotationType === 'PASS_CODE'"
+        >
           <div class="control is-clearfix">
             <input class="input" placeholder="请输入岛屿密码" v-model="reviewInfo.passCode" />
           </div>
         </b-field>
         <div class="opera-btn-wrap" v-if="reviewInfo.status === 'PENDING'">
-          <b-button class="btn-req btn-refused" v-if="gIndex === showPassIndex" @click="showPassIndex = -1"
-            type="is-primary">
-            取消</b-button>
-          <b-button class="btn-req btn-refused" v-else @click="operaMyApplication(reviewInfo, 'REJECT')"
-            type="is-primary">
-            拒绝</b-button>
-          <b-button class="btn-req" v-if="gIndex === showPassIndex"
-            @click="updateMyApplication(reviewInfo, 'ACCEPT', gIndex)" type="is-primary">
-            确认</b-button>
-          <b-button class="btn-req" v-else @click="operaMyApplication(reviewInfo, 'ACCEPT', gIndex)" type="is-primary">
-            同意</b-button>
+          <b-button
+            class="btn-req btn-refused"
+            v-if="gIndex === showPassIndex"
+            @click="showPassIndex = -1"
+            type="is-primary"
+          >取消</b-button>
+          <b-button
+            class="btn-req btn-refused"
+            v-else
+            @click="operaMyApplication(reviewInfo, 'REJECT')"
+            type="is-primary"
+          >拒绝</b-button>
+          <b-button
+            class="btn-req"
+            v-if="gIndex === showPassIndex"
+            @click="updateMyApplication(reviewInfo, 'ACCEPT', gIndex)"
+            type="is-primary"
+          >确认</b-button>
+          <b-button
+            class="btn-req"
+            v-else
+            @click="operaMyApplication(reviewInfo, 'ACCEPT', gIndex)"
+            type="is-primary"
+          >同意</b-button>
         </div>
         <div v-if="reviewInfo.status === 'REJECT'" class="opera-btn">
-          <b-button class="btn-req btn-refused" disabled type="is-primary">
-            已拒绝</b-button>
+          <b-button class="btn-req btn-refused" disabled type="is-primary">已拒绝</b-button>
         </div>
         <div v-if="reviewInfo.status === 'ACCEPT'" class="opera-btn">
-          <b-button class="btn-req" disabled type="is-primary">
-            已同意</b-button>
+          <b-button class="btn-req" disabled type="is-primary">已同意</b-button>
         </div>
       </div>
-      <div class="application-form" v-if="reviewList.length === 0">
-        {{isLoading ? loadingText : '没有收到申请'}}
-      </div>
+      <div
+        class="application-form"
+        v-if="reviewList.length === 0"
+      >{{isLoading ? loadingText : '没有收到申请'}}</div>
     </section>
   </div>
 </template>
@@ -107,10 +170,12 @@
 import TopMenu from "../components/TopMenu";
 import jsCookie from "js-cookie";
 import ICON from "../components/ICON";
+import Dialog from "../components/Dialog";
+
 export default {
   name: "APPLICATION",
   middleware: "curDay",
-  components: { TopMenu, ICON },
+  components: { TopMenu, ICON, Dialog },
   data() {
     return {
       isLoading: true,
@@ -192,6 +257,9 @@ export default {
     this.loadTextClock = 0;
   },
   methods: {
+    showDlg() {
+      this.$refs.dialog.show();
+    },
     async checkAuth() {
       if (this.isAuth) {
         if (!this.isUserInfo) {
@@ -308,26 +376,18 @@ export default {
      * 撤回申请
      */
     async withdrawApplication(applicationId) {
-      this.$buefy.dialog.confirm({
-        title: "警告",
-        message: "确定撤回吗？",
-        confirmText: "撤回",
-        cancelText: "取消",
-        type: "is-danger",
-        hasIcon: true,
-        onConfirm: async () => {
-          this.$store.commit("setLoading");
-          await this.$axios.$delete(`/applications/${applicationId}`);
-          await this.qryMyApplication();
-          this.$buefy.toast.open({
-            duration: 3000,
-            message: "撤回成功",
-            position: "is-top",
-            type: "is-success"
-          });
-        }
+      this.$refs.dialog.hide();
+      this.$store.commit("setLoading");
+      await this.$axios.$delete(`/applications/${applicationId}`);
+      await this.qryMyApplication();
+      this.$buefy.toast.open({
+        duration: 3000,
+        message: "撤回成功",
+        position: "is-top",
+        type: "is-success"
       });
     },
+
     /**
      * 控制 switch 好友编号输入
      */
@@ -340,6 +400,21 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+.dialog-container {
+  font-weight: bold;
+  h1 {
+    font-size: 1.8rem;
+  }
+  button {
+    height: 50px;
+    width: 100%;
+    background-color: #d97b92;
+    border: none;
+    margin-top: 8px;
+    font-size: 1.3rem;
+    color: white;
+  }
+}
 .application {
   section {
     position: relative;
@@ -415,10 +490,12 @@ export default {
     height: 50px;
     border-radius: 11px;
   }
-  .btn-applyed {
+  .btn-applyed,
+  .btn-applyed:hover {
     background: #937bd9;
   }
-  .btn-refused {
+  .btn-refused,
+  .btn-refused:hover {
     background: #d97b92;
   }
 }
