@@ -1,9 +1,9 @@
-@import "./base";
-@import "./pages/index";
-@import "./pages/sell";
-@import "./pages/buy";
-@import "./pages/login";
-@import "./pages/register";
+@import './base';
+@import './pages/index';
+@import './pages/sell';
+@import './pages/buy';
+@import './pages/login';
+@import './pages/register';
 
 * {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
@@ -20,7 +20,7 @@
     .control {
       margin-right: 20px;
     }
-    span.control{
+    span.control {
       width: calc(100% - 20px);
       white-space: nowrap;
       display: inline-block;
@@ -30,7 +30,7 @@
   }
 }
 
-.form-wrapper-null{
+.form-wrapper-null {
   background: #fcf9f2;
   margin: 5%;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
@@ -58,7 +58,7 @@
     box-shadow: none;
     border: none;
   }
-  .friendCode-wrap{
+  .friendCode-wrap {
     position: relative;
     &-title {
       position: absolute;
@@ -67,7 +67,9 @@
       left: 11px;
       font-size: 17px;
       font-weight: bolder;
-      font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+      font-family: BlinkMacSystemFont, -apple-system, 'Segoe UI', 'Roboto',
+        'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
+        'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
     }
     &-title-gray {
       color: #d9d6cb;
@@ -125,20 +127,34 @@ body {
   -webkit-text-fill-color: #d9d6cb;
 }
 
-.modal .animation-content{
+.modal .animation-content {
   width: 80%;
 }
 
-.button.btn-req, .button.btn-req[disabled]{
+.button.btn-req,
+.button.btn-req[disabled] {
   background: $btn-clr-g;
   height: 50px;
   width: 100%;
   margin-top: 8px;
   border-radius: 11px;
+  &:hover {
+    background: $btn-clr-g;
+  }
 }
-.button.btn-applyed, .button.btn-applyed[disabled]{
-  background: #937BD9;
+.button.btn-applyed,
+.button.btn-applyed[disabled] {
+  background: #937bd9;
 }
-.button.btn-refused, .button.btn-refused[disabled]{
-  background: #D97B92;
+.button.btn-refused,
+.button.btn-refused[disabled] {
+  background: #d97b92;
+}
+
+button {
+  transition: var(--anim-ease-s);
+  &:hover {
+    transform: translateY(2px) scale(1.06) !important;
+  }
+  border-radius: 27px !important;
 }

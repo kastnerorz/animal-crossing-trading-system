@@ -5,10 +5,18 @@ $bg-clr-light: #f5f0e3;
 $bg-clr-lighter: #fffcf5;
 $txt-clr: #67654a;
 
+$anim-time-s: 0.15s;
+$anim-time-m: 0.35s;
+$anim-time-l: 0.75s;
+
+:root {
+  --anim-ease-s: 0.25s all ease-in-out;
+}
+
 @mixin control-card {
   background: $bg-clr-light;
   margin: 5%;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-  border-radius: 0 0 27px 27px;
+  border-radius: 27px;
   padding: 5%;
 }
