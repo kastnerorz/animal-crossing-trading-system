@@ -10,6 +10,7 @@ type Application struct {
 	Applicant        User               `json:"applicant" bson:"applicant"`
 	QuotationId      primitive.ObjectID `json:"quotationId" bson:"quotationId"`
 	QuotationType    string             `json:"quotationType" bson:"quotationType"`
+	Price            int                `json:"price" bson:"price"`
 	ReviewerId       primitive.ObjectID `json:"reviewerId" bson:"reviewerId"`
 	ReviewerNickname string             `json:"reviewerNickname" bson:"reviewerNickname"`
 	PassCode         string             `json:"passCode" bson:"passCode"`

@@ -222,9 +222,11 @@ func UpdateQuotation(c *gin.Context) {
 	handlingFee := param.HandlingFee
 
 	set := bson.M{}
+	applicationSet := bson.M{}
 
 	if price != nil {
 		set["price"] = price
+		applicationSet["price"] = price
 	}
 
 	if openType != "" {
@@ -233,6 +235,7 @@ func UpdateQuotation(c *gin.Context) {
 			return
 		}
 		set["openType"] = openType
+		applicationSet["quotationType"] = openType
 	}
 
 	if passCode != "" {
@@ -258,6 +261,24 @@ func UpdateQuotation(c *gin.Context) {
 	if err == mongo.ErrNoDocuments {
 		c.JSON(http.StatusForbidden, gin.H{"code": -1, "msg": "没有这个报价信息或无权限更改！"})
 		return
+	}
+
+	mongoCtx, collection = pkg.GetMongoContext("applications")
+	_, err = collection.UpdateMany(mongoCtx, bson.M{"quotationId": objectId}, bson.M{"$set": applicationSet})
+	if err != nil && err != mongo.ErrNoDocuments {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "msg": "（-3）内部错误"})
+		log.Println(err)
+		return
+	}
+
+	if set["passCode"] != "" {
+		mongoCtx, collection = pkg.GetMongoContext("applications")
+		_, err = collection.UpdateMany(mongoCtx, bson.M{"quotationId": objectId, "status": "ACCEPT"}, bson.M{"$set": bson.M{"passCode": passCode}})
+		if err != nil && err != mongo.ErrNoDocuments {
+			c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "msg": "（-4）内部错误"})
+			log.Println(err)
+			return
+		}
 	}
 	c.JSON(http.StatusOK, quotation)
 }

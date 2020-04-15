@@ -67,6 +67,7 @@ func CreateApplication(c *gin.Context) {
 		"applicant":          user.Simplify(),
 		"quotationId":        quotation.ID,
 		"quotationType":      quotation.OpenType,
+		"price":              quotation.Price,
 		"reviewerNickname":   quotation.Author.Nickname,
 		"reviewerId":         quotation.Author.ID,
 		"status":             "PENDING",

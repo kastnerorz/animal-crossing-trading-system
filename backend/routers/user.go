@@ -97,6 +97,7 @@ func GetUser(c *gin.Context) {
 		{"username", 1},
 		{"nickname", 1},
 		{"jikeId", 1},
+		{"switchNickname", 1},
 	})
 	err := collection.FindOne(mongoCtx, bson.M{"_id": objectId}, opt).Decode(&res)
 	if err != nil && err != mongo.ErrNoDocuments {
