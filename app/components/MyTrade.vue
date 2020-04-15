@@ -1,5 +1,9 @@
 <template>
   <section class="form-wrapper">
+    <Dialog ref="dialog" class="recall-dlg">
+      <h1>确定撤回吗？</h1>
+      <button class="btn-confirm" @click="withdrawTrade">撤回</button>
+    </Dialog>
     <div class="lr-block">
       <b-field label="报价">
         <div class="control is-clearfix">
@@ -11,9 +15,11 @@
       </b-field>
       <b-field label="岛屿开放类型">
         <b-select v-model="openType" class="choose-open-type" placeholder="选择类型">
-          <option v-for="option in openTypes" :value="option.type" :key="option.type">
-            {{ option.text }}
-          </option>
+          <option
+            v-for="option in openTypes"
+            :value="option.type"
+            :key="option.type"
+          >{{ option.text }}</option>
         </b-select>
       </b-field>
     </div>
@@ -29,17 +35,31 @@
     </b-field>
     <b-field v-if="openType === 'FRIENDS'" label="Switch 好友编号">
       <div class="friendCode-wrap">
-        <b-input class="friendCode" @input="friendCodeInput" maxlength="14" v-model="switchFriendCode"
-          placeholder="XXXX-XXXX-XXXX"></b-input>
+        <b-input
+          class="friendCode"
+          @input="friendCodeInput"
+          maxlength="14"
+          v-model="switchFriendCode"
+          placeholder="XXXX-XXXX-XXXX"
+        ></b-input>
         <span
-          :class="['friendCode-wrap-title', {'friendCode-wrap-title-gray': switchFriendCode.length === 0}]">SW-</span>
+          :class="[
+            'friendCode-wrap-title',
+            {'friendCode-wrap-title-gray': switchFriendCode.length === 0},
+          ]"
+        >SW-</span>
       </div>
     </b-field>
     <div class="opera-btn-wrap" v-if="isAuth && hasQuotation">
-      <b-button class="btn-reg btn-refused" type="is-primary" @click="withdrawTrade">撤回</b-button>
+      <b-button class="btn-reg btn-refused" type="is-primary" @click="this.$refs.dialog.show">撤回</b-button>
       <b-button class="btn-reg" type="is-primary" @click="validateAllData">修改</b-button>
     </div>
-    <b-button v-if="isAuth && !hasQuotation" class="btn-reg" type="is-primary" @click="validateAllData">发布</b-button>
+    <b-button
+      v-if="isAuth && !hasQuotation"
+      class="btn-reg"
+      type="is-primary"
+      @click="validateAllData"
+    >发布</b-button>
     <b-button v-if="!isAuth" class="btn-reg" type="is-primary" @click="loginAni">登录后发布</b-button>
   </section>
 </template>
@@ -47,6 +67,8 @@
 import ICON from "./ICON";
 import jsCookie from "js-cookie";
 import asyncValidator from "async-validator";
+import Dialog from "../components/Dialog";
+
 const validateRules = {
   price: [
     { required: true, message: "收购价不能为空" },
@@ -84,7 +106,7 @@ const validateRules = {
   ]
 };
 export default {
-  components: { ICON },
+  components: { ICON, Dialog },
   props: {
     tradeType: {
       type: String,
@@ -110,7 +132,8 @@ export default {
       passCode: "",
       handlingFee: "",
       switchFriendCode: "",
-      hasQuotation: false
+      hasQuotation: false,
+      isAlerting: false
     };
   },
   watch: {
@@ -270,25 +293,16 @@ export default {
      * 撤回报价
      */
     async withdrawTrade() {
-      this.$buefy.dialog.confirm({
-        title: "警告",
-        message: "确定撤回吗？",
-        confirmText: "撤回",
-        cancelText: "取消",
-        type: "is-danger",
-        hasIcon: true,
-        onConfirm: async () => {
-          this.$store.commit("setLoading");
-          await this.$axios.$delete(`/quotations/${this.quoId}`);
-          await this.qryMyQuotation();
-          this.$emit("editMyApplication");
-          this.$buefy.toast.open({
-            duration: 3000,
-            message: "撤回成功",
-            position: "is-top",
-            type: "is-success"
-          });
-        }
+      this.$refs.dialog.hide();
+      this.$store.commit("setLoading");
+      await this.$axios.$delete(`/quotations/${this.quoId}`);
+      await this.qryMyQuotation();
+      this.$emit("editMyApplication");
+      this.$buefy.toast.open({
+        duration: 3000,
+        message: "撤回成功",
+        position: "is-top",
+        type: "is-success"
       });
     },
     /**
@@ -301,6 +315,21 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+.recall-dlg {
+  font-weight: bold;
+  h1 {
+    font-size: 1.8rem;
+  }
+  button {
+    height: 50px;
+    width: 100%;
+    background-color: #d97b92;
+    border: none;
+    margin-top: 8px;
+    font-size: 1.3rem;
+    color: white;
+  }
+}
 input[disabled] {
   background-color: #fffcf5;
   color: #67654a;
