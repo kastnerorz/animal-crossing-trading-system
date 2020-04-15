@@ -225,7 +225,7 @@ export default {
         type: "is-success"
       });
       if (user) {
-        setInterval(() => {
+        setTimeout(() => {
           this.$store.commit('closeLoading');
           this.$router.push("/login");
         }, 1000);
