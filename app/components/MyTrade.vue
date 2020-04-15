@@ -18,17 +18,17 @@
       </b-field>
     </div>
     <div class="lr-block" v-if="openType === 'PASS_CODE'">
-      <b-field label="手续费">
+      <b-field label="手续费(选填)">
         <div class="control is-clearfix">
           <div class="input-icon">
             <ICON type="money" />
           </div>
-          <input class="input" placeholder="请输入岛屿手续费(选填)" v-model="handlingFee" />
+          <input class="input" placeholder="手续费" v-model.number="handlingFee" />
         </div>
       </b-field>
       <b-field label="岛屿密码">
         <div class="control is-clearfix">
-          <input class="input" placeholder="请输入岛屿密码" v-model="passCode" />
+          <input class="input" placeholder="岛屿密码" v-model="passCode" />
         </div>
       </b-field>
     </div>
@@ -40,9 +40,9 @@
           :class="['friendCode-wrap-title', {'friendCode-wrap-title-gray': switchFriendCode.length === 0}]">SW-</span>
       </div>
     </b-field>
-    <b-field v-if="openType === 'FRIENDS'" label="手续费">
+    <b-field v-if="openType === 'FRIENDS'" label="手续费(选填)">
       <div class="control is-clearfix">
-        <input class="input" placeholder="请输入岛屿手续费(选填)" v-model="handlingFee" />
+        <input class="input" placeholder="手续费" v-model="handlingFee" />
       </div>
     </b-field>
     <b-button v-if="isAuth" class="btn-reg" type="is-primary" @click="validateAllData">{{hasQuotation ? '修改' : '发布'}}
@@ -57,18 +57,19 @@ import { mapMutations } from "vuex";
 import asyncValidator from "async-validator";
 const validateRules = {
   price: [
-    { required: true, message: "收购价不能为空" },
+    { required: true,  message: "收购价不能为空" },
+    { type: "number", message: "收购价必须为数字" },
     {
       validator: function() {
         if (Number(arguments[1]) === 0) {
           return new Error("收购价不可为 0");
         }
-        if (!Number(arguments[1])) {
-          return new Error("收购价必须为数字");
-        }
         return true;
       }
     }
+  ],
+  handlingFee: [
+    { required: false, type: "number", message: "手续费必须为数字" },
   ],
   openType: [
     {
@@ -160,10 +161,12 @@ export default {
     validateAllData(type) {
       const rules = {
         price: validateRules.price,
+        handlingFee: validateRules.handlingFee,
         openType: validateRules.openType
       };
       const vaildData = {
         price: this.price,
+        handlingFee: this.handlingFee,
         openType: this.openType
       };
       if (this.openType === "PASS_CODE") {
@@ -234,7 +237,7 @@ export default {
       this.$store.commit("setLoading");
       const quoParam = {
         type: this.tradeType,
-        handlingFee: this.handlingFee + "" || "0",
+        handlingFee: this.handlingFee || 0,
         price: this.price,
         openType: this.openType,
         passCode: this.passCode
