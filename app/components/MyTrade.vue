@@ -17,21 +17,26 @@
         </b-select>
       </b-field>
     </div>
-    <div class="lr-block" v-if="openType === 'PASS_CODE'">
-      <b-field label="手续费(选填)">
+    <b-field label="手续费(选填)">
+      <div class="control is-clearfix">
+        <input class="input" placeholder="输入手续费,铃钱或物品" v-model="handlingFee" />
+      </div>
+    </b-field>
+    <!-- <div class="lr-block" v-if="openType === 'PASS_CODE'"> -->
+      <!-- <b-field label="手续费(选填)">
         <div class="control is-clearfix">
           <div class="input-icon">
             <ICON type="money" />
           </div>
           <input class="input" placeholder="手续费" v-model.number="handlingFee" />
         </div>
-      </b-field>
-      <b-field label="岛屿密码">
+      </b-field> -->
+      <b-field v-if="openType === 'PASS_CODE'" label="岛屿密码">
         <div class="control is-clearfix">
-          <input class="input" placeholder="岛屿密码" v-model="passCode" />
+          <input class="input" placeholder="岛屿密码" v-model.trim="passCode" />
         </div>
       </b-field>
-    </div>
+    <!-- </div> -->
     <b-field v-if="openType === 'FRIENDS'" label="Switch 好友编号">
       <div class="friendCode-wrap">
         <b-input class="friendCode" @input="friendCodeInput" maxlength="14" v-model="switchFriendCode"
@@ -40,20 +45,17 @@
           :class="['friendCode-wrap-title', {'friendCode-wrap-title-gray': switchFriendCode.length === 0}]">SW-</span>
       </div>
     </b-field>
-    <b-field v-if="openType === 'FRIENDS'" label="手续费(选填)">
-      <div class="control is-clearfix">
-        <input class="input" placeholder="手续费" v-model="handlingFee" />
-      </div>
-    </b-field>
-    <b-button v-if="isAuth" class="btn-reg" type="is-primary" @click="validateAllData">{{hasQuotation ? '修改' : '发布'}}
-    </b-button>
-    <b-button v-else class="btn-reg" type="is-primary" @click="loginAni">登录后发布</b-button>
+    <div class="opera-btn-wrap" v-if="isAuth && hasQuotation" >
+      <b-button class="btn-reg btn-refused" type="is-primary" @click="withdraw">撤回</b-button>
+      <b-button class="btn-reg" type="is-primary" @click="validateAllData">修改</b-button>
+    </div>
+    <b-button v-if="isAuth && !hasQuotation" class="btn-reg" type="is-primary" @click="validateAllData">发布</b-button>
+    <b-button v-if="!isAuth" class="btn-reg" type="is-primary" @click="loginAni">登录后发布</b-button>
   </section>
 </template>
 <script>
 import ICON from "./ICON";
 import jsCookie from "js-cookie";
-import { mapMutations } from "vuex";
 import asyncValidator from "async-validator";
 const validateRules = {
   price: [
@@ -67,9 +69,6 @@ const validateRules = {
         return true;
       }
     }
-  ],
-  handlingFee: [
-    { required: false, type: "number", message: "手续费必须为数字" },
   ],
   openType: [
     {
@@ -124,6 +123,13 @@ export default {
       hasQuotation: false
     };
   },
+  watch: {
+    openType(val) {
+      if (val === 'FRIENDS') {
+        this.switchFriendCode = this.$store.state.user.switchFriendCode.substring(3)
+      }
+    }
+  },
   computed: {
     isLogin() {
       return !!this.$store.state.user.username;
@@ -161,12 +167,10 @@ export default {
     validateAllData(type) {
       const rules = {
         price: validateRules.price,
-        handlingFee: validateRules.handlingFee,
         openType: validateRules.openType
       };
       const vaildData = {
         price: this.price,
-        handlingFee: this.handlingFee,
         openType: this.openType
       };
       if (this.openType === "PASS_CODE") {
@@ -202,7 +206,7 @@ export default {
     /**
      * 查询我的发布信息
      */
-    async qryMyQuotation(force) {
+    async qryMyQuotation() {
       const switchFriendCode = this.$store.state.user.switchFriendCode || "";
       this.$store.commit("setLoading");
       let myQuo = await this.$axios.$get(
@@ -237,16 +241,15 @@ export default {
       this.$store.commit("setLoading");
       const quoParam = {
         type: this.tradeType,
-        handlingFee: this.handlingFee || 0,
+        handlingFee: this.handlingFee || "",
         price: this.price,
         openType: this.openType,
         passCode: this.passCode
       };
-
       if (this.openType === "PASS_CODE") {
         quoParam["passCode"] = this.passCode;
       } else if (this.openType === "FRIENDS") {
-        quoParam["switchFriendCode"] = this.switchFriendCode;
+        quoParam["switchFriendCode"] = "SW-" + this.switchFriendCode;
       }
       if (this.hasQuotation) {
         await this.$axios.$put(`/quotations/${this.quoId}`, quoParam);
@@ -259,8 +262,29 @@ export default {
         position: "is-top",
         type: "is-success"
       });
-      await this.qryMyQuotation(true);
+      await this.qryMyQuotation();
       this.$emit("editMyApplication");
+    },
+    /**
+     * 撤回申请
+     */
+    async withdraw() {
+      this.$buefy.toast.open({
+        duration: 3000,
+        message: "还未完成",
+        position: "is-top",
+        type: "is-danger"
+      });
+      // this.$store.commit("setLoading");
+      // await this.$axios.$delete(`/quotations/${this.quoId}`);
+      // await this.qryMyQuotation();
+      // this.$emit("editMyApplication");
+      // this.$buefy.toast.open({
+      //   duration: 3000,
+      //   message: "撤回成功",
+      //   position: "is-top",
+      //   type: "is-success"
+      // });
     },
     /**
      * 转去登录
@@ -306,11 +330,16 @@ input[disabled] {
     color: #d9d6cb;
   }
 }
-.btn-reg {
-  background: #7bd9c2;
-  height: 58px;
-  width: 100%;
-  margin-top: 8px;
-  border-radius: 11px;
+.opera-btn-wrap {
+  display: flex;
+  justify-content: space-between;
+  button {
+    width: 48%;
+    height: 50px;
+    border-radius: 11px;
+  }
+  .btn-refused {
+    background: #d97b92;
+  }
 }
 </style>

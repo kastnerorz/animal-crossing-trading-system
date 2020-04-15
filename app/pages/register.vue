@@ -218,9 +218,17 @@ export default {
         switchFriendCode: "SW-" + this.switchFriendCode
       };
       const user = await this.$axios.$post("/users", userInfo);
-      this.$store.commit('closeLoading');
+      this.$buefy.toast.open({
+        duration: 1000,
+        message: "注册成功！",
+        position: "is-top",
+        type: "is-success"
+      });
       if (user) {
-        this.$router.push("/login");
+        setInterval(() => {
+          this.$store.commit('closeLoading');
+          this.$router.push("/login");
+        }, 1000);
       }
     },
     /**

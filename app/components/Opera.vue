@@ -8,58 +8,9 @@
       </section>
       <section>
         <p class="section-title">{{operaTypeText}}大厅</p>
-        <div v-for="(good, gIndex) in goodsList" :key="gIndex" class="form-wrapper buy-wrapper info-item">
-          <div class="lr-block">
-            <b-field label="昵称">
-              <span class="input verified-show default-color control">{{good.nickName}}</span>
-            </b-field>
-            <b-field label="收购价">
-              <div class="control is-clearfix">
-                <div class="input-icon">
-                  <ICON type="money" />
-                </div>
-                <input disabled class="input" v-model="good.price" />
-              </div>
-            </b-field>
-          </div>
-          <div class="lr-block">
-            <b-field label="岛屿开放类型">
-              <span class="input verified-show default-color control">{{good.openType | openTypeTranslate}}</span>
-            </b-field>
-            <b-field label="手续费">
-              <div class="control is-clearfix">
-                <div class="input-icon">
-                  <ICON type="money" />
-                </div>
-                <input disabled class="input" v-model="good.handlingFee" />
-              </div>
-            </b-field>
-          </div>
-          <!-- <b-field label="有效性">
-            <span class="input verified-show"
-              :class="{ 'valid-color' : good.validCount > good.invalidCount }">{{good | verifiedTranslate}}</span>
-          </b-field> -->
-          <div v-if="!good.isMine">
-            <b-button class="btn-req" v-if="!isLogin" type="is-primary" @click="loginAni">登录后申请</b-button>
-            <template v-else>
-              <b-button class="btn-req" v-if="good.status === 'NORMAL'" type="is-primary"
-                @click="requestApplications(good.id, gIndex)">{{good.status | applyBtnTextTranslate}}</b-button>
-              <b-button class="btn-req btn-applyed" disabled v-if="good.status === 'PENDING'" type="is-primary">
-                {{good.status | applyBtnTextTranslate}}</b-button>
-              <b-button class="btn-req btn-refused" disabled v-if="good.status === 'REJECT'" type="is-primary">
-                {{good.status | applyBtnTextTranslate}}</b-button>
-              <b-button class="btn-req" disabled v-if="good.status === 'ACCEPT'" type="is-primary">
-                {{good.status | applyBtnTextTranslate}}</b-button>
-            </template>
-          </div>
-          <p v-else class="my-realse">*我发布的</p>
-          <!-- <div class="two-btn-block">
-            <b-button class="btn-devalue" type="is-primary" @click="requestApplications">假的</b-button>
-            <b-button class="btn-value" type="is-primary" @click="requestApplications">有效</b-button>
-          </div> -->
-        </div>
+        <Quotation v-for="(quotation, gIndex) in quotationsList" :key="quotation.id" :quotationsList="quotationsList" :gIndex="gIndex" :quotation="quotation"></Quotation>
         <p class="form-wrapper-null" v-if="isLoading">{{loadingText}}</p>
-        <p class="form-wrapper-null" v-if="!isLoading && goodsList.length === 0">啥也没有</p>
+        <p class="form-wrapper-null" v-if="!isLoading && quotationsList.length === 0">啥也没有</p>
       </section>
     </div>
   </div>
@@ -67,6 +18,7 @@
 <script>
 import jsCookie from "js-cookie";
 import MyTrade from "./MyTrade";
+import Quotation from "./Quotation";
 import TopMenu from "./TopMenu";
 import ICON from "./ICON";
 export default {
@@ -77,7 +29,7 @@ export default {
       default: "SELL"
     }
   },
-  components: { TopMenu, ICON, MyTrade },
+  components: { TopMenu, ICON, MyTrade, Quotation },
   data() {
     return {
       timer: null,
@@ -90,7 +42,7 @@ export default {
         verified: false,
         playerCount: 2
       },
-      goodsList: [],
+      quotationsList: [],
       applicationList: []
     };
   },
@@ -109,35 +61,11 @@ export default {
     }
   },
   filters: {
-    openTypeTranslate(val) {
-      return val === "PASS_CODE" ? "密码" : "仅好友";
-    },
-    verifiedTranslate(good) {
-      if (good.validCount === good.invalidCount) {
+    verifiedTranslate(quotation) {
+      if (quotation.validCount === quotation.invalidCount) {
         return "待验证";
       }
-      return good.validCount > good.invalidCount ? "有效" : "无效";
-    },
-    applyBtnTextTranslate(status) {
-      let btnText = "";
-      switch (status) {
-        case "NORMAL":
-          btnText = "申请";
-          break;
-        case "PENDING":
-          btnText = "等待同意";
-          break;
-        case "REJECT":
-          btnText = "被拒绝";
-          break;
-        case "ACCEPT":
-          btnText = "已同意";
-          break;
-        default:
-          btnText = "申请";
-          break;
-      }
-      return btnText;
+      return quotation.validCount > quotation.invalidCount ? "有效" : "无效";
     }
   },
   beforeDestroy() {
@@ -208,7 +136,7 @@ export default {
      * 刷新报价
      */
     async refreshQuotas() {
-      this.goodsList = [];
+      this.quotationsList = [];
       this.isLoading = true;
       this.$store.commit("setLoading");
       await this.qryQuotations();
@@ -220,7 +148,7 @@ export default {
     async qryQuotations() {
       let res = await this.$axios.$get(`/quotations?type=${this.operaType}`);
       this.isLoading = false;
-      let goodsList = res.map(quo => {
+      let quotationsList = res.map(quo => {
         const isMine = this.isLogin
           ? quo.author.id === this.$store.state.user.id
           : false;
@@ -229,6 +157,7 @@ export default {
           price: quo.price,
           nickName: quo.author.nickname,
           sellerId: quo.author.id,
+          modifieTime: quo.lastModified,
           validCount: quo.validCount,
           invalidCount: quo.invalidCount,
           handlingFee: quo.handlingFee,
@@ -238,7 +167,7 @@ export default {
           lastModified: quo.lastModified
         };
       });
-      goodsList.forEach(goods => {
+      quotationsList.forEach(goods => {
         const cGood = this.applicationList.find(
           apl => goods.id === apl.quotationId
         );
@@ -246,28 +175,8 @@ export default {
           goods.status = cGood.status;
         }
       });
-      this.goodsList = goodsList;
-      // this.goodsList = [...this.goodsList, ...goodsList];
-    },
-    /**
-     * 提交申请
-     * @param String qId 报价id
-     * @param Number gIndex 报价序号
-     */
-    async requestApplications(qId, gIndex) {
-      const reqData = {
-        QuotationId: qId
-      };
-      this.$store.commit("setLoading");
-      let trade = await this.$axios.$post("/applications", reqData);
-      this.$set(this.goodsList[gIndex], "status", "PENDING");
-      this.$store.commit("closeLoading");
-      this.$buefy.toast.open({
-        duration: 2000,
-        message: "申请成功!",
-        position: "is-top",
-        type: "is-success"
-      });
+      this.quotationsList = quotationsList;
+      // this.quotationsList = [...this.quotationsList, ...quotationsList];
     },
     /**
      * 查询我的申请，比对后修改报价状态
@@ -283,38 +192,12 @@ export default {
       });
     },
     /**
-     * 生成按钮文字
-     * @param String qId 报价id
-     */
-    genereateBtnTxt(qId) {
-      if (this.applicationList.length === 0) {
-        return "申请";
-      }
-      const findQuo = this.applicationList.find(el => el.quotationId === qId);
-      if (findQuo) {
-        if (findQuo.status === "ACCEPT") {
-          return "已同意";
-        } else if (findQuo.status === "PENDING") {
-          return "已申请";
-        }
-        return "已拒绝";
-      } else {
-        return "申请";
-      }
-    },
-    /**
      * 静默查询申请更新
      */
     async getApplicationCountQuiet() {
       const reveiwList = await this.$axios.$get("/applications?type=REVIEW");
       const hasPending = reveiwList.find(el => el.status === "PENDING");
       this.$store.commit("setHasApplicationNew", hasPending);
-    },
-    /**
-     * 转去登录
-     */
-    loginAni() {
-      this.$router.push("/login");
     }
   }
 };

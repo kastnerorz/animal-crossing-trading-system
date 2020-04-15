@@ -6,7 +6,7 @@
         <b-input v-model="username" placeholder="请输入用户名"></b-input>
       </b-field>
       <b-field label="密码">
-        <b-input v-model="password" placeholder="请输入密码" type="password" maxlength="30"></b-input>
+        <b-input v-model="password" placeholder="请输入密码" @keyup.enter="login" type="password" maxlength="30"></b-input>
       </b-field>
       <b-button class="btn-login" type="is-primary" @click="login">登录</b-button>
       <b-button class="btn-login btn-register" type="is-primary" @click="goRegister">还没有账号</b-button>
