@@ -250,7 +250,7 @@ export default {
       // this.goodsList = [...this.goodsList, ...goodsList];
     },
     /**
-     * 修改申请
+     * 提交申请
      * @param String qId 报价id
      * @param Number gIndex 报价序号
      */
@@ -260,11 +260,11 @@ export default {
       };
       this.$store.commit("setLoading");
       let trade = await this.$axios.$post("/applications", reqData);
-      this.$store.commit("closeLoading");
       this.$set(this.goodsList[gIndex], "status", "PENDING");
+      this.$store.commit("closeLoading");
       this.$buefy.toast.open({
         duration: 2000,
-        message: "已同意",
+        message: "申请成功!",
         position: "is-top",
         type: "is-success"
       });
