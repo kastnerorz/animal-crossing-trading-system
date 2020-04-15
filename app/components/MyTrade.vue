@@ -234,7 +234,7 @@ export default {
       this.$store.commit("setLoading");
       const quoParam = {
         type: this.tradeType,
-        handlingFee: this.handlingFee || 0,
+        handlingFee: this.handlingFee + "" || "0",
         price: this.price,
         openType: this.openType,
         passCode: this.passCode
@@ -242,8 +242,7 @@ export default {
 
       if (this.openType === "PASS_CODE") {
         quoParam["passCode"] = this.passCode;
-      }
-      if (this.openType === "FRIENDS") {
+      } else if (this.openType === "FRIENDS") {
         quoParam["switchFriendCode"] = this.switchFriendCode;
       }
       if (this.hasQuotation) {
