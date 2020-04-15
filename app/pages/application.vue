@@ -492,11 +492,11 @@ export default {
   }
   .btn-applyed,
   .btn-applyed:hover {
-    background: #937bd9;
+    background: #937bd9 !important;
   }
   .btn-refused,
   .btn-refused:hover {
-    background: #d97b92;
+    background: #d97b92 !important;
   }
 }
 </style>
