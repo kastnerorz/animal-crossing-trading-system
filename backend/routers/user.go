@@ -61,6 +61,12 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
+	if user.SwitchNickname == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"code": -8, "msg": "NS昵称不能为空！"})
+		log.Println(err)
+		return
+	}
+
 	h := sha256.New()
 	h.Write([]byte(user.Password))
 	mongoCtx, collection = pkg.GetMongoContext("users")
@@ -69,6 +75,7 @@ func CreateUser(c *gin.Context) {
 		"password":         hex.EncodeToString(h.Sum(nil)),
 		"nickname":         user.Nickname,
 		"switchFriendCode": user.SwitchFriendCode,
+		"switchNickname":   user.SwitchNickname,
 		"jikeId":           user.JikeID,
 	})
 	if err != nil {

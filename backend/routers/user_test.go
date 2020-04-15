@@ -14,7 +14,7 @@ var userId string
 
 func TestCreateUser(t *testing.T) {
 	// normal
-	body := []byte(`{"username":"zed2","nickname":"\u5f20\u8c46","password":"01db71ab8048f74a4b92c26ba77285ade0687ac192758e8185ad52701f649ef2","switchFriendCode":"SW-1234-1234-1234","jikeId":"\u5f20\u8c46"}`)
+	body := []byte(`{"username":"zed2","nickname":"\u5f20\u8c46","password":"01db71ab8048f74a4b92c26ba77285ade0687ac192758e8185ad52701f649ef2","switchFriendCode":"SW-1234-1234-1234","switchNickname":"Zed","jikeId":"\u5f20\u8c46"}`)
 	r := PerformRequest("POST", "/api/v1/users", bytes.NewBuffer(body))
 	assert.Equal(t, http.StatusCreated, r.Code)
 
@@ -25,7 +25,7 @@ func TestCreateUser(t *testing.T) {
 	assert.Nil(t, err)
 
 	// 400 username is already exist
-	body = []byte(`{"username":"zed","nickname":"\u5f20\u8c46","password":"01db71ab8048f74a4b92c26ba77285ade0687ac192758e8185ad52701f649ef2","switchFriendCode":"SW-1234-1234-1234","jikeId":"\u5f20\u8c46"}`)
+	body = []byte(`{"username":"zed","nickname":"\u5f20\u8c46","password":"01db71ab8048f74a4b92c26ba77285ade0687ac192758e8185ad52701f649ef2","switchFriendCode":"SW-1234-1234-1234","switchNickname":"Zed","jikeId":"\u5f20\u8c46"}`)
 	r = PerformRequest("POST", "/api/v1/users", bytes.NewBuffer(body))
 	assert.Equal(t, http.StatusBadRequest, r.Code)
 

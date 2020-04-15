@@ -60,11 +60,9 @@ func CreateQuotation(c *gin.Context) {
 	}
 
 	mongoCtx, collection = pkg.GetMongoContext("quotations")
-	user.Password = ""
-	user.SwitchFriendCode = ""
 	_, err = collection.InsertOne(mongoCtx, bson.M{
 		"type":         quotation.Type,
-		"author":       user,
+		"author":       user.Simplify(),
 		"price":        quotation.Price,
 		"validCount":   0,
 		"invalidCount": 0,
