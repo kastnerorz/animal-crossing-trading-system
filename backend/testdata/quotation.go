@@ -22,7 +22,7 @@ func TestQuotations() []interface{} {
 			"validCount":   0,
 			"invalidCount": 0,
 			"openType":     "PASS_CODE",
-			"handlingFee":  100000,
+			"handlingFee":  "100000",
 			"lastModified": "2020-03-31T08:35:25.963Z",
 		},
 		bson.M{
@@ -37,7 +37,7 @@ func TestQuotations() []interface{} {
 			"validCount":   0,
 			"invalidCount": 0,
 			"openType":     "FRIENDS",
-			"handlingFee":  100000,
+			"handlingFee":  "100000",
 			"lastModified": "2020-03-31T14:54:24.143Z",
 		},
 	}
