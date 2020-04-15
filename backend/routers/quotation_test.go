@@ -13,7 +13,7 @@ import (
 var quotationId string
 
 func TestCreateQuotation(t *testing.T) {
-	body := []byte(`{"type":"SELL","price":40,"openType":"PASS_CODE","passCode":"56HMS","handlingFee":100000}`)
+	body := []byte(`{"type":"SELL","price":40,"openType":"PASS_CODE","passCode":"56HMS","handlingFee":"100000"}`)
 	r := PerformRequestWithAuth("POST", "/api/v1/quotations", bytes.NewBuffer(body), ReviewerToken)
 	assert.Equal(t, http.StatusCreated, r.Code)
 }
@@ -30,7 +30,7 @@ func TestGetQuotations(t *testing.T) {
 	assert.Equal(t, 40, quotation.Price)
 	assert.Equal(t, "PASS_CODE", quotation.OpenType)
 	assert.Equal(t, "", quotation.PassCode)
-	assert.Equal(t, 100000, quotation.HandlingFee)
+	assert.Equal(t, "100000", quotation.HandlingFee)
 }
 
 func TestGetQuotation(t *testing.T) {
@@ -43,11 +43,11 @@ func TestGetQuotation(t *testing.T) {
 	assert.Equal(t, 40, quotation.Price)
 	assert.Equal(t, "FRIENDS", quotation.OpenType)
 	assert.Equal(t, "", quotation.PassCode)
-	assert.Equal(t, 100000, quotation.HandlingFee)
+	assert.Equal(t, "100000", quotation.HandlingFee)
 }
 
 func TestUpdateQuotation(t *testing.T) {
-	body := []byte(`{"price":90,"handlingFee":0,"openType":"FRIENDS"}`)
+	body := []byte(`{"price":90,"handlingFee":"0","openType":"FRIENDS"}`)
 	r := PerformRequestWithAuth("PUT", "/api/v1/quotations/"+quotationId, bytes.NewBuffer(body), ReviewerToken)
 	assert.Equal(t, http.StatusOK, r.Code)
 }
@@ -62,7 +62,7 @@ func TestGetMyQuotation(t *testing.T) {
 	quotation := quotations[0]
 	assert.Equal(t, 90, quotation.Price)
 	assert.Equal(t, "FRIENDS", quotation.OpenType)
-	assert.Equal(t, 0, quotation.HandlingFee)
+	assert.Equal(t, "0", quotation.HandlingFee)
 }
 
 func TestDeleteQuotation(t *testing.T) {
@@ -71,7 +71,7 @@ func TestDeleteQuotation(t *testing.T) {
 }
 
 func TestCreateQuotationPassCode(t *testing.T) {
-	body := []byte(`{"type":"SELL","price":40,"openType":"PASS_CODE","passCode":"56HMS","handlingFee":100000}`)
+	body := []byte(`{"type":"SELL","price":40,"openType":"PASS_CODE","passCode":"56HMS","handlingFee":"100000"}`)
 	r := PerformRequestWithAuth("POST", "/api/v1/quotations", bytes.NewBuffer(body), ReviewerToken)
 	assert.Equal(t, http.StatusCreated, r.Code)
 }
@@ -86,5 +86,5 @@ func TestGetMyQuotationPassCode(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 40, quotation.Price)
 	assert.Equal(t, "PASS_CODE", quotation.OpenType)
-	assert.Equal(t, 100000, quotation.HandlingFee)
+	assert.Equal(t, "100000", quotation.HandlingFee)
 }

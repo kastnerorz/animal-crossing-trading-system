@@ -14,7 +14,7 @@ type Quotation struct {
 	InvalidCount int                `json:"invalidCount" bson:"invalidCount"`
 	OpenType     string             `json:"openType" bson:"openType"`
 	PassCode     string             `json:"passCode,omitempty" bson:"passCode"`
-	HandlingFee  int                `json:"handlingFee" bson:"handlingFee"`
+	HandlingFee  string             `json:"handlingFee" bson:"handlingFee"`
 	LastModified time.Time          `json:"lastModified" bson:"lastModified"`
 }
 
@@ -25,7 +25,7 @@ type QuotationParam struct {
 	IsValid      *bool     `json:"isValid" bson:"isValid"`
 	OpenType     string    `json:"openType" bson:"openType"`
 	PassCode     string    `json:"passCode" bson:"passCode"`
-	HandlingFee  *int      `json:"handlingFee" bson:"handlingFee"`
+	HandlingFee  string    `json:"handlingFee" bson:"handlingFee"`
 	LastModified time.Time `json:"lastModified" bson:"lastModified"`
 }
 

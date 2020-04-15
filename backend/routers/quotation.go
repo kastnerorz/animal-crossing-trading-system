@@ -242,7 +242,7 @@ func UpdateQuotation(c *gin.Context) {
 		set["passCode"] = passCode
 	}
 
-	if handlingFee != nil {
+	if handlingFee != "" {
 		set["handlingFee"] = handlingFee
 	}
 
