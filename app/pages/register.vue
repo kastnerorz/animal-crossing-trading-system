@@ -9,23 +9,45 @@
         <b-input v-model="username" @blur="validateMethod('username')" placeholder="请输入用户名"></b-input>
       </b-field>
       <b-field label="密码">
-        <b-input v-model="password" autocomplete="off"  @blur="validateMethod('password')" placeholder="请输入密码" type="password"
-          maxlength="30"></b-input>
+        <b-input
+          v-model="password"
+          autocomplete="off"
+          @blur="validateMethod('password')"
+          placeholder="请输入密码"
+          type="password"
+          maxlength="30"
+        ></b-input>
       </b-field>
       <b-field label="再次输入密码">
-        <b-input v-model="rePassword" autocomplete="off"  @blur="validateMethod('rePassword')" placeholder="请再次输入密码" type="password"
-          maxlength="30">
-        </b-input>
+        <b-input
+          v-model="rePassword"
+          autocomplete="off"
+          @blur="validateMethod('rePassword')"
+          placeholder="请再次输入密码"
+          type="password"
+          maxlength="30"
+        ></b-input>
       </b-field>
       <b-field label="Switch 好友昵称">
-        <b-input v-model="switchNickname" @blur="validateMethod('switchNickname')" placeholder="请输入你的Switch 好友昵称"></b-input>
+        <b-input
+          v-model="switchNickname"
+          @blur="validateMethod('switchNickname')"
+          placeholder="请输入你的Switch 好友昵称"
+        ></b-input>
       </b-field>
       <b-field label="Switch 好友编号">
         <div class="friendCode-wrap">
-          <b-input class="friendCode" @blur="validateMethod('switchFriendCode')" @input="friendCodeInput" maxlength="14"
-            v-model="switchFriendCode" placeholder="XXXX-XXXX-XXXX"></b-input>
+          <b-input
+            class="friendCode"
+            @blur="validateMethod('switchFriendCode')"
+            @input="friendCodeInput"
+            maxlength="14"
+            v-model="switchFriendCode"
+            placeholder="XXXX-XXXX-XXXX"
+          ></b-input>
           <span
-            :class="['friendCode-wrap-title', {'friendCode-wrap-title-gray': switchFriendCode.length === 0}]">SW-</span>
+            :class="['friendCode-wrap-title', {'friendCode-wrap-title-gray': switchFriendCode.length === 0}]"
+          >SW-</span>
         </div>
       </b-field>
       <b-field label="即刻 ID">
@@ -206,7 +228,7 @@ export default {
      * 注册
      */
     async register() {
-      this.$store.commit('setLoading');
+      this.$store.commit("setLoading");
       var hash = sha256.create();
       hash.update(this.password);
       let userInfo = {
@@ -226,7 +248,7 @@ export default {
       });
       if (user) {
         setTimeout(() => {
-          this.$store.commit('closeLoading');
+          this.$store.commit("closeLoading");
           this.$router.push("/login");
         }, 1000);
       }
@@ -236,7 +258,7 @@ export default {
      */
     friendCodeInput(val) {
       this.switchFriendCode = val
-        .replace(/\s/g, "")
+        .replace(/[\D]*/g, "")
         .replace(/(\d{4})(?=\d)/g, "$1-");
     }
   }
