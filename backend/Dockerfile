@@ -12,6 +12,7 @@ FROM alpine
 ENV PORT 8080
 ENV MONGO_URL "mongodb://127.0.0.1:27017"
 ENV MONGO_COLLECTION "acts-dev"
+ENV JWT_TOKEN "token"
 ENV GIN_MODE=release
 
 RUN adduser -S -D -H -h /app appuser
@@ -23,4 +24,5 @@ EXPOSE $PORT
 ENTRYPOINT ./main \
     -mongo-url=$MONGO_URL \
     -mongo-collection=$MONGO_COLLECTION \
+    -token=$JWT_TOKEN \
     -port=$PORT

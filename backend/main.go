@@ -9,6 +9,7 @@ import (
 func main() {
 	flag.StringVar(&configs.MongoURI, "mongo-url", "mongodb://localhost:27017", "")
 	flag.StringVar(&configs.MongoCollection, "mongo-collection", "acts-dev", "")
+	flag.StringVar(&configs.JWTToken, "token", "token", "")
 	flag.StringVar(&configs.Port, "port", "8080", "")
 	flag.Parse()
 

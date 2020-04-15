@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
+	"github.com/kastnerorz/animal-crossing-trading-system/backend/configs"
 	"github.com/kastnerorz/animal-crossing-trading-system/backend/models"
 	"github.com/kastnerorz/animal-crossing-trading-system/backend/pkg"
 	"go.mongodb.org/mongo-driver/bson"
@@ -20,7 +21,7 @@ func AuthMiddleware() *jwt.GinJWTMiddleware {
 
 	middleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:       "test zone",
-		Key:         []byte("secret key"),
+		Key:         []byte(configs.JWTToken),
 		Timeout:     time.Hour,
 		MaxRefresh:  time.Hour,
 		IdentityKey: IdentityKey,

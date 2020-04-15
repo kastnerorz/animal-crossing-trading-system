@@ -16,6 +16,7 @@ import (
 func TestMain(m *testing.M) {
 	flag.StringVar(&configs.MongoURI, "mongo-url", "mongodb://localhost:27017", "")
 	flag.StringVar(&configs.MongoCollection, "mongo-collection", "acts-test", "")
+	flag.StringVar(&configs.JWTToken, "token", "secret key", "")
 	flag.StringVar(&configs.Port, "port", "8080", "")
 	flag.Parse()
 
