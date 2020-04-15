@@ -24,6 +24,7 @@
   },
   "devDependencies": {
     "@ava/babel": "^1.0.0",
+    "@nuxtjs/google-analytics": "^2.2.3",
     "@vue/test-utils": "^1.0.0-beta.27",
     "ava": "^3.0.0",
     "babel-plugin-module-resolver": "^3.2.0",

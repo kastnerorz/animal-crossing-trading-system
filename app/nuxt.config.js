@@ -45,13 +45,17 @@ export default {
   /*
    ** Nuxt.js dev-modules
    */
-  buildModules: [],
+  buildModules: [
+    ['@nuxtjs/google-analytics', {
+      id: 'UA-162809622-1'
+    }]
+  ],
   /*
    ** Axios module configuration
    ** See https://axios.nuxtjs.org/options
    */
   axios: {
-    baseURL: 'http://ac.kastner.cn/api/v1',
+    baseURL: 'https://api.kastner.cn/dtc/api/v1',
   },
   /*
    ** Build configuration
