@@ -9,17 +9,11 @@
     &:hover {
       background: $btn-clr-g;
     }
-    &:active {
-      transform: scale(0.95);
-    }
   }
   .btn-register {
     background: $btn-clr-r;
     &:hover {
       background: $btn-clr-r;
-    }
-    &:active {
-      transform: scale(0.95);
     }
   }
 }
