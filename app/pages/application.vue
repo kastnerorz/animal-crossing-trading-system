@@ -36,12 +36,13 @@
             <span class="input verified-show default-color control">{{applyInfo.switchFriendCode}}</span>
           </div>
         </b-field>
-        <div class="opera-btn-wrap opera-btn">
+        <div :class="['opera-btn-wrap', {'opera-btn': applyInfo.status !== 'PENDING'}]">
           <b-button class="btn-req" disabled v-if="applyInfo.status === 'ACCEPT'" type="is-primary">
             {{applyInfo.status | applyBtnTextTranslate}}</b-button>
-          <b-button class="btn-req btn-applyed" disabled v-if="applyInfo.status === 'PENDING'" type="is-primary">
-            {{applyInfo.status | applyBtnTextTranslate}}</b-button>
           <b-button class="btn-req btn-refused" disabled v-if="applyInfo.status === 'REJECT'" type="is-primary">
+            {{applyInfo.status | applyBtnTextTranslate}}</b-button>
+          <b-button class="btn-req btn-refused" @click="withdrawApplication(applyInfo.id)" v-if="applyInfo.status === 'PENDING'" type="is-primary">撤回</b-button>
+          <b-button class="btn-req btn-applyed" disabled v-if="applyInfo.status === 'PENDING'" type="is-primary">
             {{applyInfo.status | applyBtnTextTranslate}}</b-button>
         </div>
       </div>
@@ -304,6 +305,30 @@ export default {
       }
     },
     /**
+     * 撤回申请
+     */
+    async withdrawApplication(applicationId) {
+      this.$buefy.dialog.confirm({
+        title: "警告",
+        message: "确定撤回吗？",
+        confirmText: "撤回",
+        cancelText: "取消",
+        type: "is-danger",
+        hasIcon: true,
+        onConfirm: async () => {
+          this.$store.commit("setLoading");
+          await this.$axios.$delete(`/applications/${applicationId}`);
+          await this.qryMyApplication();
+          this.$buefy.toast.open({
+            duration: 3000,
+            message: "撤回成功",
+            position: "is-top",
+            type: "is-success"
+          });
+        }
+      });
+    },
+    /**
      * 控制 switch 好友编号输入
      */
     friendCodeInput(val) {
@@ -379,6 +404,9 @@ export default {
 .opera-btn-wrap {
   display: flex;
   justify-content: space-between;
+  .btn-req,
+  .btn-applyed,
+  .btn-refused,
   button {
     width: 48%;
   }

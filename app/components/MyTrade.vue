@@ -22,21 +22,11 @@
         <input class="input" placeholder="输入手续费,铃钱或物品" v-model="handlingFee" />
       </div>
     </b-field>
-    <!-- <div class="lr-block" v-if="openType === 'PASS_CODE'"> -->
-      <!-- <b-field label="手续费(选填)">
-        <div class="control is-clearfix">
-          <div class="input-icon">
-            <ICON type="money" />
-          </div>
-          <input class="input" placeholder="手续费" v-model.number="handlingFee" />
-        </div>
-      </b-field> -->
-      <b-field v-if="openType === 'PASS_CODE'" label="岛屿密码">
-        <div class="control is-clearfix">
-          <input class="input" placeholder="岛屿密码" v-model.trim="passCode" />
-        </div>
-      </b-field>
-    <!-- </div> -->
+    <b-field v-if="openType === 'PASS_CODE'" label="岛屿密码">
+      <div class="control is-clearfix">
+        <input class="input" placeholder="岛屿密码" v-model.trim="passCode" />
+      </div>
+    </b-field>
     <b-field v-if="openType === 'FRIENDS'" label="Switch 好友编号">
       <div class="friendCode-wrap">
         <b-input class="friendCode" @input="friendCodeInput" maxlength="14" v-model="switchFriendCode"
@@ -45,8 +35,8 @@
           :class="['friendCode-wrap-title', {'friendCode-wrap-title-gray': switchFriendCode.length === 0}]">SW-</span>
       </div>
     </b-field>
-    <div class="opera-btn-wrap" v-if="isAuth && hasQuotation" >
-      <b-button class="btn-reg btn-refused" type="is-primary" @click="withdraw">撤回</b-button>
+    <div class="opera-btn-wrap" v-if="isAuth && hasQuotation">
+      <b-button class="btn-reg btn-refused" type="is-primary" @click="withdrawTrade">撤回</b-button>
       <b-button class="btn-reg" type="is-primary" @click="validateAllData">修改</b-button>
     </div>
     <b-button v-if="isAuth && !hasQuotation" class="btn-reg" type="is-primary" @click="validateAllData">发布</b-button>
@@ -59,7 +49,7 @@ import jsCookie from "js-cookie";
 import asyncValidator from "async-validator";
 const validateRules = {
   price: [
-    { required: true,  message: "收购价不能为空" },
+    { required: true, message: "收购价不能为空" },
     { type: "number", message: "收购价必须为数字" },
     {
       validator: function() {
@@ -125,8 +115,10 @@ export default {
   },
   watch: {
     openType(val) {
-      if (val === 'FRIENDS') {
-        this.switchFriendCode = this.$store.state.user.switchFriendCode.substring(3)
+      if (val === "FRIENDS") {
+        this.switchFriendCode = this.$store.state.user.switchFriendCode.substring(
+          3
+        );
       }
     }
   },
@@ -232,6 +224,15 @@ export default {
           validCount: myQuo[0].validCount,
           invalidCount: myQuo[0].invalidCount
         });
+      } else {
+        this.hasQuotation = false;
+        this.quoId = "";
+        this.price = "";
+        this.openType = "PASS_CODE";
+        this.passCode = "";
+        this.handlingFee = "";
+        this.switchFriendCode = "";
+        this.$store.commit("setQuotation", {});
       }
     },
     /**
@@ -266,25 +267,29 @@ export default {
       this.$emit("editMyApplication");
     },
     /**
-     * 撤回申请
+     * 撤回报价
      */
-    async withdraw() {
-      this.$buefy.toast.open({
-        duration: 3000,
-        message: "还未完成",
-        position: "is-top",
-        type: "is-danger"
+    async withdrawTrade() {
+      this.$buefy.dialog.confirm({
+        title: "警告",
+        message: "确定撤回吗？",
+        confirmText: "撤回",
+        cancelText: "取消",
+        type: "is-danger",
+        hasIcon: true,
+        onConfirm: async () => {
+          this.$store.commit("setLoading");
+          await this.$axios.$delete(`/quotations/${this.quoId}`);
+          await this.qryMyQuotation();
+          this.$emit("editMyApplication");
+          this.$buefy.toast.open({
+            duration: 3000,
+            message: "撤回成功",
+            position: "is-top",
+            type: "is-success"
+          });
+        }
       });
-      // this.$store.commit("setLoading");
-      // await this.$axios.$delete(`/quotations/${this.quoId}`);
-      // await this.qryMyQuotation();
-      // this.$emit("editMyApplication");
-      // this.$buefy.toast.open({
-      //   duration: 3000,
-      //   message: "撤回成功",
-      //   position: "is-top",
-      //   type: "is-success"
-      // });
     },
     /**
      * 转去登录
