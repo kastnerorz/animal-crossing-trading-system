@@ -116,9 +116,12 @@ export default {
   watch: {
     openType(val) {
       if (val === "FRIENDS") {
-        this.switchFriendCode = this.$store.state.user.switchFriendCode.substring(
-          3
-        );
+        let switchFriendCode = "";
+        const userInfo = this.$store.state.user || {};
+        if (userInfo && userInfo.switchFriendCode) {
+          switchFriendCode = userInfo.switchFriendCode.substring(3);
+        }
+        this.switchFriendCode = switchFriendCode;
       }
     }
   },
