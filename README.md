@@ -9,7 +9,7 @@
 
 ## Contributors
 
-- Designer: Pan
+- Designer: [Pan](https://pan.design)
 - Front-end: [GnimOay](https://github.com/Envl), [kelrvinsme](https://github.com/kelrvins)
 - Back-end: [Zed](https://github.com/kastnerorz)
 
