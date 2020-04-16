@@ -4,6 +4,9 @@
   "description": "My fine Nuxt.js project",
   "author": "Zed",
   "private": true,
+  "prettier": {
+    "singleQuote": false
+  },
   "scripts": {
     "dev": "nuxt --spa",
     "build": "nuxt build --spa",
