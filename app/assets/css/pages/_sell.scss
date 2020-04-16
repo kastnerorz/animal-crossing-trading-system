@@ -18,10 +18,10 @@
       padding-left: 32px;
     }
   }
-  .choose-open-type{
+  .choose-open-type {
     select {
       width: 9rem;
-      &:not(.is-multiple):not(.is-loading)::after{
+      &:not(.is-multiple):not(.is-loading)::after {
         top: 54%;
       }
     }
@@ -35,5 +35,8 @@
     width: 100%;
     margin-top: 8px;
     border-radius: 11px;
+    &:hover {
+      background: $btn-clr-g;
+    }
   }
 }

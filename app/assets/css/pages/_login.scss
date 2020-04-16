@@ -5,8 +5,15 @@
     width: 100%;
     margin-top: 8px;
     border-radius: 11px;
+    // transform: scale(1);
+    &:hover {
+      background: $btn-clr-g;
+    }
   }
   .btn-register {
-    background: #F95F4F;
+    background: $btn-clr-r;
+    &:hover {
+      background: $btn-clr-r;
+    }
   }
 }
