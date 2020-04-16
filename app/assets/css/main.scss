@@ -91,12 +91,16 @@
   }
 }
 // above code should be refactored into separate files
-body {
+html {
   background-image: url(../bg-compo.svg);
+}
+body {
   background-repeat: repeat;
   min-height: 100vh;
   font-family: PingFang SC;
-  width: 100vw;
+  width: 100%;
+  max-width: 768px;
+  margin: 0 auto;
   overflow: hidden;
 }
 .select select,
